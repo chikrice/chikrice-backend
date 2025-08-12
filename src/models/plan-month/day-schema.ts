@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // -------------------------------------
 
-const daySchema = mongoose.Schema(
+const daySchema = new mongoose.Schema(
   {
     id: {
       type: mongoose.SchemaTypes.ObjectId,
@@ -24,4 +24,4 @@ const daySchema = mongoose.Schema(
   { _id: false },
 );
 
-module.exports = daySchema;
+export default daySchema;

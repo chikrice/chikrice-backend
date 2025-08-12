@@ -1,4 +1,5 @@
 const { addDays } = require('date-fns');
+
 const calcDayData = require('./calc-day-data');
 
 const calcWeekData = async (week, currentDay, totalDays, calories, macrosRatio, userId) => {
@@ -10,30 +11,31 @@ const calcWeekData = async (week, currentDay, totalDays, calories, macrosRatio, 
     days: [],
   };
 
-  // Step 2: create days template for each day of the week
-  for (let day = 0; day < 7 && totalDays > 0; day++) {
-    // Step 3: get the saved day data and push it to days day
+  // Step 2: create array of promises for parallel execution
+  const dayPromises = [];
+  let tempCurrentDay = currentDay;
+  let tempTotalDays = totalDays;
+
+  for (let day = 0; day < 7 && tempTotalDays > 0; day++) {
     const dayNumber = (week - 1) * 7 + day + 1;
-    const planDay = await calcDayData(day, currentDay, calories, macrosRatio, userId);
 
-    const dayData = {
-      id: planDay._id,
-      name: planDay.name,
-      date: planDay.date,
-      number: dayNumber,
-    };
+    dayPromises.push(
+      calcDayData(day, tempCurrentDay, calories, macrosRatio, userId).then((planDay) => ({
+        id: planDay._id,
+        name: planDay.name,
+        date: planDay.date,
+        number: dayNumber,
+      })),
+    );
 
-    weekData.days.push(dayData);
-
-    // Step 4: update currentDay and totalDays
-    currentDay = addDays(currentDay, 1);
-    totalDays--;
-
-    // Stop if there is no day left
-    if (totalDays <= 0) {
-      break;
-    }
+    // Update variables for next iteration
+    tempCurrentDay = addDays(tempCurrentDay, 1);
+    tempTotalDays--;
   }
+
+  // Step 3: execute all promises in parallel
+  const dayDataArray = await Promise.all(dayPromises);
+  weekData.days = dayDataArray;
 
   return weekData;
 };

@@ -1,12 +1,12 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const { toJSON } = require('../plugins');
+import { toJSON } from '../plugins';
 
-const daySchema = require('./day-schema');
+import daySchema from './day-schema';
 
 // -------------------------------------
 
-const weekSchema = mongoose.Schema({
+const weekSchema = new mongoose.Schema({
   weekNumber: {
     type: Number,
     required: true,
@@ -27,4 +27,4 @@ const weekSchema = mongoose.Schema({
 
 weekSchema.plugin(toJSON);
 
-module.exports = weekSchema;
+export default weekSchema;

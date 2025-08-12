@@ -1,12 +1,21 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const { toJSON, paginate } = require('../plugins');
+import { toJSON, paginate } from '../plugins';
 
-const weekSchema = require('./week-schema');
+import weekSchema from './week-schema';
+
+import type { Document, Model } from 'mongoose';
+import type { PaginateOptions, PlanMonthType, QueryResult } from '@/types';
 
 // -------------------------------------
 
-const planSchema = mongoose.Schema(
+type PlanMonthDoc = Document & PlanMonthType;
+
+interface PlanMonthModelInterface extends Model<PlanMonthDoc> {
+  paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<PlanMonthDoc>>;
+}
+
+const planSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.SchemaTypes.ObjectId,
@@ -61,6 +70,6 @@ const planSchema = mongoose.Schema(
 planSchema.plugin(toJSON);
 planSchema.plugin(paginate);
 
-const PlanMonth = mongoose.model('PlanMonth', planSchema);
+const PlanMonth = mongoose.model<PlanMonthDoc, PlanMonthModelInterface>('PlanMonth', planSchema);
 
-module.exports = PlanMonth;
+export default PlanMonth;
