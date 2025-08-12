@@ -1,0 +1,634 @@
+components:
+  schemas:
+    # Base User Schema (common fields for all user types)
+    UserBase:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+        name:
+          type: string
+          description: User's full name
+        email:
+          type: string
+          format: email
+          description: User's email address
+        age:
+          type: number
+          minimum: 0
+          nullable: true
+          description: User's age
+        isEmailVerified:
+          type: boolean
+          description: Whether the user's email has been verified
+        picture:
+          type: string
+          nullable: true
+          description: URL to user's profile picture
+        password:
+          type: string
+          minLength: 8
+          description: User's password (hashed)
+        phoneNumber:
+          type: string
+          nullable: true
+          description: User's phone number
+        role:
+          type: string
+          enum: [user, admin, coach]
+          description: User's role in the system
+        gender:
+          type: string
+          enum: [male, female]
+          nullable: true
+          description: User's gender
+        registrationMethod:
+          type: string
+          enum: [google, manual, admin]
+          description: Method used for user registration
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the user was last updated
+      example:
+        id: 5ebac534954b54139806c112
+        name: 'John Doe'
+        email: 'john.doe@example.com'
+        age: 30
+        isEmailVerified: true
+        picture: 'https://example.com/profile.jpg'
+        phoneNumber: '+971501234567'
+        role: 'user'
+        gender: 'male'
+        registrationMethod: 'manual'
+        createdAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z'
+
+    # Address Schema
+    Address:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name for the address (e.g., "Home", "Office")
+        fullAddress:
+          type: string
+          description: Complete address string
+        addressType:
+          type: string
+          enum: [home, office]
+          default: home
+          description: Type of address
+        phoneNumber:
+          type: string
+          description: Phone number for this address
+        isPrimary:
+          type: boolean
+          default: false
+          description: Whether this is the primary address
+        addressLink:
+          type: string
+          description: Link to the address (e.g., Google Maps link)
+        latitude:
+          type: number
+          description: Latitude coordinate
+        longitude:
+          type: number
+          description: Longitude coordinate
+        notes:
+          type: string
+          nullable: true
+          description: Additional notes about the address
+      example:
+        name: 'Home'
+        fullAddress: '123 Main St, Dubai, UAE'
+        addressType: 'home'
+        phoneNumber: '+971501234567'
+        isPrimary: true
+        addressLink: 'https://maps.google.com/...'
+        latitude: 25.2048
+        longitude: 55.2708
+        notes: 'Building 5, Apartment 12'
+
+    # Client User Schema (extends UserBase)
+    UserClient:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+        - type: object
+          properties:
+            startWeight:
+              type: number
+              minimum: 0
+              nullable: true
+              description: User's starting weight in kg
+            currentWeight:
+              type: number
+              minimum: 0
+              nullable: true
+              description: User's current weight in kg
+            targetWeight:
+              type: number
+              minimum: 0
+              nullable: true
+              description: User's target weight in kg
+            height:
+              type: number
+              minimum: 0
+              nullable: true
+              description: User's height in cm
+            activityLevel:
+              type: number
+              enum: [1, 2, 3, 4, 5]
+              nullable: true
+              description: User's activity level (1=sedentary, 5=very active)
+            goalAchievementSpeed:
+              type: string
+              enum: [slow, recommended, fast]
+              nullable: true
+              description: Speed at which user wants to achieve their goal
+            isWeightLifting:
+              type: boolean
+              nullable: true
+              description: Whether user does weight lifting
+            roadmapId:
+              type: string
+              nullable: true
+              description: Reference to user's roadmap
+            addressBook:
+              type: array
+              items:
+                $ref: '#/components/schemas/Address'
+              description: User's saved addresses
+            allergicFoods:
+              type: array
+              items:
+                type: string
+              description: List of foods user is allergic to
+            savedPlans:
+              type: array
+              items:
+                type: string
+              description: Array of saved plan IDs
+            mealPreferences:
+              type: object
+              description: User's meal preferences and restrictions
+            currentCoach:
+              type: object
+              nullable: true
+              description: Information about user's current coach
+          example:
+            startWeight: 80.5
+            currentWeight: 78.2
+            targetWeight: 70.0
+            height: 175
+            activityLevel: 3
+            goalAchievementSpeed: 'recommended'
+            isWeightLifting: true
+            roadmapId: '5ebac534954b54139806c113'
+            addressBook:
+              - name: 'Home'
+                fullAddress: '123 Main St, Dubai, UAE'
+                addressType: 'home'
+                phoneNumber: '+971501234567'
+                isPrimary: true
+                addressLink: 'https://maps.google.com/...'
+                latitude: 25.2048
+                longitude: 55.2708
+            allergicFoods: ['nuts', 'shellfish']
+            savedPlans: ['5ebac534954b54139806c114', '5ebac534954b54139806c115']
+            mealPreferences:
+              dietaryRestrictions: ['vegetarian']
+              preferredCuisines: ['mediterranean', 'asian']
+            currentCoach:
+              id: '5ebac534954b54139806c116'
+              name: 'Coach Sarah'
+
+    # Coach User Schema (extends UserBase)
+    UserCoach:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+        - type: object
+          properties:
+            clients:
+              type: array
+              items:
+                type: string
+              description: Array of client user IDs assigned to this coach
+            experience:
+              type: number
+              minimum: 0
+              description: Years of coaching experience
+            speciality:
+              type: array
+              items:
+                type: string
+              maxItems: 2
+              description: Coach's specialities (max 2)
+          example:
+            clients: ['5ebac534954b54139806c117', '5ebac534954b54139806c118']
+            experience: 5
+            speciality: ['weight_loss', 'muscle_gain']
+
+    # Admin User Schema (extends UserBase)
+    UserAdmin:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+        - type: object
+          properties:
+            # Admin-specific fields can be added here if needed
+            # Currently admin inherits all base user properties
+          example: {}
+
+    # Legacy User Schema (for backward compatibility)
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, coach]
+      example:
+        id: 5ebac534954b54139806c112
+        email: fake@example.com
+        name: fake name
+        role: user
+
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+        expires: 2020-05-12T16:18:04.793Z
+
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/Token'
+        refresh:
+          $ref: '#/components/schemas/Token'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+    # Weight Progression Schema
+    WeightProgression:
+      type: object
+      properties:
+        month:
+          type: number
+          description: Month number in the roadmap
+        startWeight:
+          type: number
+          description: Starting weight for this month
+        targetWeight:
+          type: number
+          description: Target weight for this month
+        weightChange:
+          type: number
+          description: Expected weight change for this month
+        changePoint:
+          type: object
+          nullable: true
+          properties:
+            day:
+              type: number
+              description: Day when weight change point occurred
+            weight:
+              type: number
+              description: Weight at the change point
+          description: Weight change point during the month
+      example:
+        month: 1
+        startWeight: 80.0
+        targetWeight: 78.0
+        weightChange: -2.0
+        changePoint:
+          day: 15
+          weight: 79.0
+
+    # Activity Log Schema
+    ActivityLog:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Date of the activity
+        active:
+          type: boolean
+          default: false
+          description: Whether the user was active on this date
+      example:
+        date: '2023-01-15T00:00:00.000Z'
+        active: true
+
+    # Milestone Schema
+    Milestone:
+      type: object
+      properties:
+        month:
+          type: number
+          description: Month number in the roadmap
+        planId:
+          type: string
+          nullable: true
+          description: Reference to the plan for this month
+        startWeight:
+          type: number
+          description: Starting weight for this milestone
+        targetWeight:
+          type: number
+          description: Target weight for this milestone
+        baseCalories:
+          type: number
+          description: Base calorie requirement
+        targetCalories:
+          type: number
+          description: Target calorie requirement
+        startDate:
+          type: string
+          format: date-time
+          description: Start date of this milestone
+        endDate:
+          type: string
+          format: date-time
+          description: End date of this milestone
+        macrosRatio:
+          type: object
+          properties:
+            pro:
+              type: number
+              description: Protein ratio
+            carb:
+              type: number
+              description: Carbohydrate ratio
+            fat:
+              type: number
+              description: Fat ratio
+          description: Macro nutrient ratios
+        calorieAdjustment:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [deficit, surplus]
+              description: Type of calorie adjustment
+            day:
+              type: number
+              default: 0
+              description: Day adjustment
+            month:
+              type: number
+              default: 0
+              description: Month adjustment
+          description: Calorie adjustment settings
+        changePoint:
+          type: object
+          nullable: true
+          properties:
+            baseCalories:
+              type: number
+              description: Base calories at change point
+            targetCalories:
+              type: number
+              description: Target calories at change point
+            date:
+              type: string
+              format: date-time
+              description: Date of the change point
+            newStartWeight:
+              type: number
+              nullable: true
+              description: New starting weight after change point
+            newTargetWeight:
+              type: number
+              nullable: true
+              description: New target weight after change point
+          description: Change point during this milestone
+      example:
+        month: 1
+        planId: '5ebac534954b54139806c119'
+        startWeight: 80.0
+        targetWeight: 78.0
+        baseCalories: 2000
+        targetCalories: 1800
+        startDate: '2023-01-01T00:00:00.000Z'
+        endDate: '2023-01-31T23:59:59.000Z'
+        macrosRatio:
+          pro: 30
+          carb: 40
+          fat: 30
+        calorieAdjustment:
+          type: 'deficit'
+          day: 0
+          month: 0
+        changePoint: null
+
+    # Roadmap Overview Schema
+    RoadmapOverview:
+      type: object
+      properties:
+        startWeight:
+          type: number
+          description: User's starting weight
+        currentWeight:
+          type: number
+          nullable: true
+          description: User's current weight
+        targetWeight:
+          type: number
+          description: User's target weight
+        startDate:
+          type: string
+          format: date-time
+          description: Start date of the roadmap
+        endDate:
+          type: string
+          format: date-time
+          description: End date of the roadmap
+        totalDays:
+          type: number
+          description: Total number of days in the roadmap
+        totalMonths:
+          type: number
+          description: Total number of months in the roadmap
+        weightProgression:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeightProgression'
+          description: Monthly weight progression data
+        monthlyCalorieAdjustment:
+          type: array
+          items:
+            type: number
+          description: Monthly calorie adjustments
+      example:
+        startWeight: 80.0
+        currentWeight: 78.5
+        targetWeight: 70.0
+        startDate: '2023-01-01T00:00:00.000Z'
+        endDate: '2023-06-30T23:59:59.000Z'
+        totalDays: 180
+        totalMonths: 6
+        weightProgression:
+          - month: 1
+            startWeight: 80.0
+            targetWeight: 78.0
+            weightChange: -2.0
+            changePoint: null
+          - month: 2
+            startWeight: 78.0
+            targetWeight: 76.0
+            weightChange: -2.0
+            changePoint: null
+        monthlyCalorieAdjustment: [200, 150, 100, 50, 0, 0]
+
+    # Roadmap Schema
+    Roadmap:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the roadmap
+        userId:
+          type: string
+          description: Reference to the user who owns this roadmap
+        overview:
+          $ref: '#/components/schemas/RoadmapOverview'
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Milestone'
+          description: Array of milestones in the roadmap
+        onGoingMonth:
+          type: number
+          description: Current month in the roadmap
+        onGoingDay:
+          type: number
+          description: Current day in the roadmap
+        activityLog:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityLog'
+          description: User's activity log
+        isWeightChangeOverLimit:
+          type: boolean
+          description: Whether weight change has exceeded limits
+        createdAt:
+          type: string
+          format: date-time
+          description: When the roadmap was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the roadmap was last updated
+      example:
+        id: '5ebac534954b54139806c120'
+        userId: '5ebac534954b54139806c112'
+        overview:
+          startWeight: 80.0
+          currentWeight: 78.5
+          targetWeight: 70.0
+          startDate: '2023-01-01T00:00:00.000Z'
+          endDate: '2023-06-30T23:59:59.000Z'
+          totalDays: 180
+          totalMonths: 6
+          weightProgression:
+            - month: 1
+              startWeight: 80.0
+              targetWeight: 78.0
+              weightChange: -2.0
+              changePoint: null
+          monthlyCalorieAdjustment: [200, 150, 100, 50, 0, 0]
+        milestones:
+          - month: 1
+            planId: '5ebac534954b54139806c119'
+            startWeight: 80.0
+            targetWeight: 78.0
+            baseCalories: 2000
+            targetCalories: 1800
+            startDate: '2023-01-01T00:00:00.000Z'
+            endDate: '2023-01-31T23:59:59.000Z'
+            macrosRatio:
+              pro: 30
+              carb: 40
+              fat: 30
+            calorieAdjustment:
+              type: 'deficit'
+              day: 0
+              month: 0
+            changePoint: null
+        onGoingMonth: 1
+        onGoingDay: 15
+        activityLog:
+          - date: '2023-01-15T00:00:00.000Z'
+            active: true
+        isWeightChangeOverLimit: false
+        createdAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-15T00:00:00.000Z'
+
+  responses:
+    DuplicateEmail:
+      description: Email already taken
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Email already taken
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

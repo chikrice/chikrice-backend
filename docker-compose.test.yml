@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  chikrice-backend:
+    container_name: chikrice-backend-test
+    command: yarn test

@@ -1,0 +1,10 @@
+module.exports.roadmapService = require('./roadmap');
+module.exports.faqService = require('./faq.service');
+module.exports.planDayService = require('./plan-day');
+module.exports.emailService = require('./email.service');
+module.exports.tokenService = require('./token.service');
+module.exports.authService = require('./auth.service');
+module.exports.userService = require('./user.service');
+module.exports.coachService = require('./coach.service');
+module.exports.planMonthService = require('./plan-month');
+module.exports.ingredientService = require('./ingredient');

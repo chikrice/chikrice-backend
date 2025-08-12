@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  chikrice-backend:
+    build: .
+    image: chikrice-backend
+    environment:
+      - MONGODB_URL_DEV=mongodb://mongodb:27017/chikrice
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/usr/src/chikrice-backend
+    networks:
+      - chikrice-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - chikrice-network
+
+volumes:
+  dbdata:
+
+networks:
+  chikrice-network:
+    driver: bridge

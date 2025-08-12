@@ -1,0 +1,47 @@
+{
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "airbnb-base",
+    "plugin:jest/recommended",
+    "plugin:security/recommended",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint", "jest", "security", "prettier", "perfectionist"],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": "error",
+    "func-names": "off",
+    "no-plusplus": "off",
+    "no-underscore-dangle": "off",
+    "prefer-const": "off",
+    "consistent-return": "off",
+    "jest/expect-expect": "off",
+    "max-classes-per-file": "off",
+    "security/detect-object-injection": "off",
+    "import/prefer-default-export": "off",
+    "@typescript-eslint/no-require-imports": "off",
+    "import/order": "off",
+    "import/first": "off",
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "prettier/prettier": "error",
+    "perfectionist/sort-imports": [
+      "error",
+      {
+        "type": "line-length",
+        "order": "asc",
+        "newlinesBetween": "always",
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "type"]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  }
+}
