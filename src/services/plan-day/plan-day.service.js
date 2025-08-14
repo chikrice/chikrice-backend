@@ -1,8 +1,9 @@
 const httpStatus = require('http-status');
-const { PlanDay, User } = require('../../models');
-const planDayMealServices = require('./plan-day-meal.service');
 
 const ApiError = require('../../utils/ApiError');
+const { PlanDay, User } = require('../../models');
+
+const planDayMealServices = require('./plan-day-meal.service');
 const calcTargetMacros = require('./common/calc-target-macros');
 // const genFreeMealPlan = require('./meal-planner-free/create-meal');
 const calcConsumedMacros = require('./common/calc-consumed-macros');
@@ -13,9 +14,7 @@ const splitGainWeightMacros = require('./meal-planner-free/create-meal/split-mac
 
 // --------------------------------------------------------
 
-const queryPlans = async (options) => {
-  return await PlanDay.paginate(null, options);
-};
+const queryPlans = async (options) => PlanDay.paginate(null, options);
 
 const getPlan = async (id) => {
   const plan = await PlanDay.findById(id);
@@ -75,7 +74,7 @@ const chikricePlanGenerator = async (planId, body) => {
   plan.mealsCount = mealsCount;
   plan.snacksCount = snacksCount;
 
-  const { targetMacros, consumedMacros } = plan;
+  const { targetMacros } = plan;
 
   let mealsStructure = [];
 

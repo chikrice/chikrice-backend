@@ -9,7 +9,7 @@ import type { PaginateOptions, PlanMonthType, QueryResult } from '@/types';
 
 // -------------------------------------
 
-type PlanMonthDoc = Document & PlanMonthType;
+export type PlanMonthDoc = Document & PlanMonthType;
 
 interface PlanMonthModelInterface extends Model<PlanMonthDoc> {
   paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<PlanMonthDoc>>;
@@ -70,6 +70,4 @@ const planSchema = new mongoose.Schema(
 planSchema.plugin(toJSON);
 planSchema.plugin(paginate);
 
-const PlanMonth = mongoose.model<PlanMonthDoc, PlanMonthModelInterface>('PlanMonth', planSchema);
-
-export default PlanMonth;
+export const PlanMonth = mongoose.model<PlanMonthDoc, PlanMonthModelInterface>('PlanMonth', planSchema);

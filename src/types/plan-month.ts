@@ -1,7 +1,7 @@
 import type { Types } from 'mongoose';
 
 export interface Day {
-  id: Types.ObjectId;
+  id: Types.ObjectId | null;
   name: string;
   date: Date;
   number: number;
@@ -25,4 +25,14 @@ export interface PlanMonthType {
   totalDays: number;
   totalWeeks: number;
   data: Week[];
+}
+
+export interface MealCounts {
+  meals: number;
+  snacks: number;
+}
+
+export interface PlanPeriod {
+  totalDays: number;
+  totalWeeks: number;
 }

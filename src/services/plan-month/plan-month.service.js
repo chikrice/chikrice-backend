@@ -38,6 +38,7 @@ const createPlan = async ({ roadmapId }) => {
     data: weeksData,
   };
   const createdPlan = await PlanMonth.create(plan);
+
   await Roadmap.findByIdAndUpdate(roadmapId, {
     $set: {
       [`milestones.${onGoingMonth - 1}.planId`]: createdPlan._id,

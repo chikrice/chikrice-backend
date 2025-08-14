@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 
+import type { Plan } from './plan';
+
 export type GoalSpeed = 'slow' | 'recommended' | 'fast';
 
 export interface ActivityLog {
@@ -24,8 +26,9 @@ interface ChangePoint {
 }
 
 export interface Milestone {
+  _id?: Types.ObjectId;
   month: number;
-  planId: Types.ObjectId | null;
+  plans: Plan[] | null;
   startWeight: number;
   targetWeight: number;
   baseCalories: number;

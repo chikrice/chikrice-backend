@@ -13,7 +13,7 @@ import type { PaginateOptions, QueryResult } from '@/types';
 
 // -------------------------------------
 
-type RoadmapDoc = Document & RoadmapType;
+export type RoadmapDoc = Document & RoadmapType;
 
 interface RoadmapModelInterface extends Model<RoadmapDoc> {
   paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<RoadmapDoc>>;
