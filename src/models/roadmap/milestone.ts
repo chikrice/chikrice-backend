@@ -9,9 +9,9 @@ const milestoneSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  planId: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: 'PlanMonth',
+  plans: {
+    type: [mongoose.SchemaTypes.ObjectId],
+    ref: 'Plan',
     default: null,
   },
   startWeight: {

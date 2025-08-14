@@ -27,7 +27,7 @@ export const createRoadmapMilestone = (input: CreateRoadmapDTO, overview: Overvi
   const calorieAdjustment = calculateCalorieAdjustment(monthlyCalorieAdjustment[index]);
 
   const milestone = {
-    planId: null,
+    plans: null,
     month: index + 1,
     startWeight,
     targetWeight,

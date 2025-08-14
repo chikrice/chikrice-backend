@@ -18,6 +18,19 @@ export interface Serving {
   nutrientFacts: NutrientFacts;
 }
 
+export enum IngredientCategory {
+  FATS = 'fats',
+  CARBS = 'carbs',
+  DAIRY = 'dairy',
+  FRUITS = 'fruits',
+  SNACKS = 'snacks',
+  PROTEINS = 'proteins',
+  CONDIMENTS = 'condiments',
+  VEGETABLES = 'vegetables',
+  SAUCES = 'sauces',
+  BEVERAGES = 'beverages',
+}
+
 export interface Ingredient {
   _id?: string;
   icon?: string;
@@ -25,17 +38,7 @@ export interface Ingredient {
   name: LocalizedString;
   macroType: 'carb' | 'fat' | 'pro' | 'free';
   mealType: 'meal' | 'snack' | 'all';
-  category:
-    | 'fats'
-    | 'carbs'
-    | 'dairy'
-    | 'fruits'
-    | 'snacks'
-    | 'proteins'
-    | 'condiments'
-    | 'vegetables'
-    | 'sauces'
-    | 'beverages';
+  category: IngredientCategory;
   isRaw: boolean;
   serving: Serving;
   createdAt?: Date;
