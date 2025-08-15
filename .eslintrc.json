@@ -17,7 +17,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": "error",
+    // "no-console": "error",
     "func-names": "off",
     "no-plusplus": "off",
     "no-underscore-dangle": "off",

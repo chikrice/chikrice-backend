@@ -1,4 +1,5 @@
 const express = require('express');
+
 const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const { planDayValidation } = require('../../validations');
@@ -20,7 +21,7 @@ router
   .patch(
     auth(''),
     validate(planDayValidation.togglePlanDayMealIngredient),
-    planDayController.togglePlanDayMealIngredient
+    planDayController.togglePlanDayMealIngredient,
   );
 
 router
@@ -36,7 +37,7 @@ router
   .patch(
     auth(''),
     validate(planDayValidation.addSuggestedMealToPlanDayMeals),
-    planDayController.addSuggestedMealToPlanDayMeals
+    planDayController.addSuggestedMealToPlanDayMeals,
   );
 
 router

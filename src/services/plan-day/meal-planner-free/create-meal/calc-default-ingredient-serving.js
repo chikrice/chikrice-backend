@@ -1,8 +1,9 @@
 const { User } = require('../../../../models');
-const { getBestServingSize } = require('./calc-serving-size-limit');
 const getCurrentTimeSlot = require('../../../../utils/get-time-slot');
 const calcMealsAndSnacksCount = require('../../../plan-month/calc-meals-snacks-number');
+
 const splitMacrosEqually = require('./split-macros-equally');
+const { getBestServingSize } = require('./calc-serving-size-limit');
 
 const calcDefaultIngredientPortion = async (userId, ingredient, targetMacros) => {
   const user = await User.findById(userId);

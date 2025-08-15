@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { RoadmapType } from '@/types/roadmap';
+import { RoadmapType } from '@/types';
 
 import { toJSON, paginate } from '../plugins';
 
@@ -13,7 +13,7 @@ import type { PaginateOptions, QueryResult } from '@/types';
 
 // -------------------------------------
 
-type RoadmapDoc = Document & RoadmapType;
+export type RoadmapDoc = Document & RoadmapType;
 
 interface RoadmapModelInterface extends Model<RoadmapDoc> {
   paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<RoadmapDoc>>;

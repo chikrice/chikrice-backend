@@ -6,6 +6,7 @@ const faqRoute = require('./faq.route');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
 const docsRoute = require('./docs.route');
+const planRoute = require('./plan.route');
 const coachRoute = require('./coach.route');
 const healthRoute = require('./health.route');
 const roadmapRoute = require('./roadmap.route');
@@ -39,6 +40,10 @@ const defaultRoutes = [
   {
     path: '/plans-day',
     route: planDayRoute,
+  },
+  {
+    path: '/plans',
+    route: planRoute,
   },
   {
     path: '/ingredients',

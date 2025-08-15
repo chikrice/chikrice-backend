@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
+
 const userService = require('../user.service');
 const ApiError = require('../../utils/ApiError');
 const { PlanDay, User } = require('../../models');
-
 const getCurrentTimeSlot = require('../../utils/get-time-slot');
+
 const getMealMacroWithAi = require('./ai/get-meal-macro-with-ai');
 const calcConsumedMacros = require('./common/calc-consumed-macros');
 const updateIngredient = require('./meal-planner-free/edit-meal/update-ingredient');
@@ -36,7 +37,6 @@ const initCustomMeal = async (planId) => {
   meals.push(newMeal);
 
   await planDay.save();
-  return;
 };
 
 const toggleMealMode = async (planId, body) => {
@@ -51,6 +51,7 @@ const toggleMealMode = async (planId, body) => {
 
     if (mode === 'view') {
       meal.notes = notes;
+      // eslint-disable-next-line no-use-before-define
       await updateUserMealPreferences(userId, meal.activeMeal.ingredients);
     }
   }
@@ -103,8 +104,6 @@ const switchMeal = async (planId, data) => {
 
   planDay.markModified('meals');
   await planDay.save();
-
-  return;
 };
 
 const submitMealWithAi = async (planId, body) => {
@@ -118,13 +117,16 @@ const submitMealWithAi = async (planId, body) => {
     return null;
   }
 
+  // eslint-disable-next-line no-shadow
   const meal = planDay.meals.find((meal) => meal._id.toHexString() === mealId);
 
   // Ensure meal and its ingredients exist
   if (meal && meal.activeMeal) {
     aiResult.ingredients.forEach((ing) => {
       const newId = new mongoose.Types.ObjectId();
+      // eslint-disable-next-line no-param-reassign
       ing.id = newId.toHexString();
+      // eslint-disable-next-line no-param-reassign
       ing.isAiGenerated = true;
       const existingIngredients = meal.activeMeal.ingredients[ing.macroType] || [];
       meal.activeMeal.ingredients[ing.macroType] = [...existingIngredients, ing];
@@ -140,8 +142,6 @@ const submitMealWithAi = async (planId, body) => {
     planDay.markModified('meals');
     await planDay.save();
   }
-
-  return;
 };
 
 const addSuggestedMealToPlanDayMeals = async (planId, body) => {
@@ -159,7 +159,6 @@ const addSuggestedMealToPlanDayMeals = async (planId, body) => {
 
   planDay.markModified('meals');
   await planDay.save();
-  return;
 };
 
 const changeAllMeals = async (planId) => {
@@ -180,7 +179,9 @@ const changeAllMeals = async (planId) => {
       const alternativeMeal = alternatives[alternativeIndex];
 
       // Swap the active meal with the alternative meal
+      // eslint-disable-next-line no-param-reassign
       meal.alternatives[alternativeIndex] = activeMeal;
+      // eslint-disable-next-line no-param-reassign
       meal.activeMeal = alternativeMeal;
     }
   });
@@ -192,17 +193,16 @@ const changeAllMeals = async (planId) => {
   // Mark the meals array as modified and save the changes
   planDay.markModified('meals');
   await planDay.save();
-
-  return;
 };
 
 const togglePlanDayMealIngredient = async (planId, body) => {
   const { mealId, ingredient, userId } = body;
 
+  // eslint-disable-next-line no-use-before-define
   const { planDay, activeMeal, macroGroup, ingredientIndex } = await getMealAndIngredientInfo(
     planId,
     mealId,
-    ingredient
+    ingredient,
   );
 
   const currentTimeSlot = getCurrentTimeSlot();
@@ -237,14 +237,16 @@ const togglePlanDayMealIngredient = async (planId, body) => {
 const updatePlanDayMeal = async (planId, body) => {
   const { mealId, ingredient, isAdd } = body;
 
+  // eslint-disable-next-line no-use-before-define
   const { planDay, activeMeal, macroGroup, ingredientIndex, isLastIngredint } = await getMealAndIngredientInfo(
     planId,
     mealId,
-    ingredient
+    ingredient,
   );
 
   const macroDiff = updateIngredient(macroGroup, ingredientIndex, ingredient, isAdd);
 
+  // eslint-disable-next-line no-unused-expressions, @typescript-eslint/no-unused-expressions
   isLastIngredint
     ? (activeMeal.macros = { cal: 0, carb: 0, pro: 0, fat: 0 })
     : updateMealMacros(activeMeal, macroDiff, isAdd);
@@ -253,8 +255,6 @@ const updatePlanDayMeal = async (planId, body) => {
   // here
   planDay.markModified('meals');
   await planDay.save();
-
-  return;
 };
 
 const getMealAndIngredientInfo = async (planId, mealId, ingredient) => {
@@ -263,6 +263,7 @@ const getMealAndIngredientInfo = async (planId, mealId, ingredient) => {
   if (!planDay) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
 
   // Step 2: Find the meal to update
+  // eslint-disable-next-line no-shadow
   const meal = planDay.meals.find((meal) => meal._id.toHexString() === mealId);
   if (!meal) throw new ApiError(httpStatus.NOT_FOUND, 'Meal not found');
   const { activeMeal } = meal;

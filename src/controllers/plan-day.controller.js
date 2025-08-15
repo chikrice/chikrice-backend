@@ -1,7 +1,8 @@
 const httpStatus = require('http-status');
+
+const pick = require('../utils/pick');
 const { planDayService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
-const pick = require('../utils/pick');
 
 const createPlan = catchAsync(async (req, res) => {
   const plan = await planDayService.createPlan(req.body);

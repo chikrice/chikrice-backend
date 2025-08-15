@@ -1,41 +1,54 @@
-const httpStatus = require('http-status');
 const { isEqual } = require('date-fns');
-const PlanMonth = require('../../models/plan-month');
-const calcWeeksData = require('./calc-weeks-data');
-const ApiError = require('../../utils/ApiError');
-const calcPlanDuration = require('./calc-plan-duration');
+const httpStatus = require('http-status');
+
+const { Roadmap } = require('@/models/roadmap');
+
 const { PlanDay } = require('../../models');
+const ApiError = require('../../utils/ApiError');
+const PlanMonth = require('../../models/plan-month');
 const calcTargetMacros = require('../plan-day/common/calc-target-macros');
 
-const createPlan = async (details) => {
-  const { userId, roadmapId, milestoneId, startDate, endDate, subscriptionType, calories, macrosRatio } = details;
+const calcWeeksData = require('./calc-weeks-data');
+const calcPlanDuration = require('./calc-plan-duration');
+
+const createPlan = async ({ roadmapId }) => {
+  const roadmap = await Roadmap.findById(roadmapId);
+
+  if (!roadmap) throw new ApiError(httpStatus.NOT_FOUND, 'Roadmap not found');
+  const { onGoingMonth, milestones, userId } = roadmap;
+
+  const milestone = milestones[onGoingMonth - 1];
+  const { _id, startDate, endDate, targetCalories, macrosRatio } = milestone;
 
   // Step1: calulate number of days and weeks
   const { totalDays, totalWeeks } = calcPlanDuration(startDate, endDate);
 
   // Step 2: calculate weeks data
-  const weeksData = await calcWeeksData(totalWeeks, totalDays, startDate, calories, macrosRatio, userId);
+  const weeksData = await calcWeeksData(totalWeeks, totalDays, startDate, targetCalories, macrosRatio, userId);
 
   // Step 3: combine data
   const plan = {
     userId,
     roadmapId,
-    milestoneId,
+    milestoneId: _id,
     totalDays,
     totalWeeks,
     startDate,
     endDate,
-    subscriptionType,
     data: weeksData,
   };
+  const createdPlan = await PlanMonth.create(plan);
 
-  // Step 4: save plan to db
-  return await PlanMonth.create(plan);
+  await Roadmap.findByIdAndUpdate(roadmapId, {
+    $set: {
+      [`milestones.${onGoingMonth - 1}.planId`]: createdPlan._id,
+    },
+  });
+
+  return createdPlan;
 };
 
-const queryPlans = async (options) => {
-  return await PlanMonth.paginate(null, options);
-};
+const queryPlans = async (options) => PlanMonth.paginate(null, options);
 
 const getPlan = async (id) => {
   const plan = await PlanMonth.findById(id);
@@ -114,13 +127,13 @@ const updatePlanMacros = async (planId, changeDay, calories, macrosRatio) => {
   for (let week = changeWeekIndex; week < weeks.length; week++) {
     for (let day = 0; day < weeks[week].days.length; day++) {
       // Skip the days before the change point in the first affected week
+      // eslint-disable-next-line
       if (week === changeWeekIndex && day < changeDayWeekIndex) continue;
 
       daysToUpdate.push(weeks[week].days[day].id);
     }
   }
 
-  console.log('🚀 ~ updatePlanMacros ~ daysToUpdate:', daysToUpdate);
   // Step 4 Calculate the new targetMacros
   const targetMacros = calcTargetMacros(calories, macrosRatio);
 
