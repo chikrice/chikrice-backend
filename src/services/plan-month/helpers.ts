@@ -4,9 +4,8 @@ import { differenceInCalendarDays, addDays } from 'date-fns';
 import ApiError from '@/utils/ApiError';
 
 import type { Types } from 'mongoose';
-import type { Milestone } from '@/types/roadmap';
 import type { RoadmapDoc } from '@/models/roadmap';
-import type { Week, Day, MealCounts, PlanPeriod } from '@/types';
+import type { Milestone, Week, Day, MealCounts, PlanPeriod } from '@/types';
 
 // ============================================
 // CONSTANTS

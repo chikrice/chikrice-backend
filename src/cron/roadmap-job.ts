@@ -4,7 +4,7 @@ const { differenceInDays, formatISO } = require('date-fns');
 const { Roadmap } = require('../models');
 const config = require('../config/config');
 
-import type { Overview, RoadmapType } from '@/types/roadmap';
+import type { Overview, RoadmapType } from '@/types';
 
 //------------------------------------
 

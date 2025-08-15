@@ -27,7 +27,7 @@ export interface PlanMonthType {
   data: Week[];
 }
 
-export interface MealCounts {
+export interface MealsCount {
   meals: number;
   snacks: number;
 }

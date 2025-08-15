@@ -6,12 +6,21 @@ export interface Macros {
   fat: number;
 }
 
+export interface TargetMacros extends Macros {
+  cal: number;
+}
+
 export interface Meal {
   number: number;
   recommendedMacros: Macros;
   mode: 'view' | 'edit';
   ingredients: Ingrediets;
   macros: Macros;
+}
+
+export interface MealsCount {
+  meals: number;
+  snacks: number;
 }
 
 export interface PlanType {

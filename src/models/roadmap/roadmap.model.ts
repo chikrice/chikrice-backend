@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { RoadmapType } from '@/types/roadmap';
+import { RoadmapType } from '@/types';
 
 import { toJSON, paginate } from '../plugins';
 

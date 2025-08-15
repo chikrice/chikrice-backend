@@ -5,7 +5,7 @@ import {
   calculateCalorieAdjustment,
 } from './helpers';
 
-import type { Milestone, Overview } from '@/types/roadmap';
+import type { Milestone, Overview } from '@/types';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 
 // -------------------------------------

@@ -1,9 +1,18 @@
 import httpStatus from 'http-status';
 
-import { Plan, User } from '../../models';
-import ApiError from '../../utils/ApiError';
+import ApiError from '@/utils/ApiError';
+import { Plan, User, Roadmap } from '@/models';
 
-import type { CreatePlanDTO } from '../../validations/plan.validation';
+import {
+  calculateMealsCount,
+  calculateTargetMacros,
+  generateDateArray,
+  createPlanData,
+  createPlanRef,
+} from './helpers';
+
+import type { PlanDoc } from '@/models/plan';
+import type { CreatePlanDTO, CreatePlansDTO } from '@/validations/plan.validation';
 
 // ============================================
 // PLAN QUERY
@@ -26,6 +35,47 @@ export const createPlan = async (planData: CreatePlanDTO) => {
   // This will need to be adapted based on your new plan model structure
   const plan = await Plan.create(planData);
   return plan;
+};
+
+// ============================================
+// MAIN IMPLEMENTATION
+// ============================================
+export const createPlans = async (input: CreatePlansDTO): Promise<PlanDoc[]> => {
+  const { startDate, endDate, macrosRatio, targetCalories, roadmapId, milestoneId } = input;
+
+  const roadmap = await Roadmap.findById(roadmapId);
+
+  if (!roadmap) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Roadmap not found');
+  }
+
+  const milestone = roadmap.milestones.find((m) => m._id?.toString() === milestoneId);
+
+  if (!milestone) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Milestone not found in roadmap');
+  }
+
+  const targetMacros = calculateTargetMacros(macrosRatio, targetCalories);
+
+  const { meals: mealsCount, snacks: snacksCount } = calculateMealsCount(targetCalories);
+
+  const dateArray = generateDateArray(startDate, endDate);
+
+  const plans = await Promise.all(
+    dateArray.map(async (date, index) => {
+      const dayNumber = index + 1;
+      const planData = createPlanData(date, dayNumber, targetMacros, mealsCount, snacksCount);
+      return Plan.create(planData);
+    }),
+  );
+
+  const planRefs = dateArray.map((date, index) => createPlanRef(plans[index]._id.toString(), date, index + 1));
+
+  milestone.plans = planRefs;
+  roadmap.markModified('milestones');
+  await roadmap.save();
+
+  return plans;
 };
 
 // ============================================

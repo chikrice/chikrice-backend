@@ -4,8 +4,8 @@ const pick = require('../utils/pick');
 const { planService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 
-const createPlan = catchAsync(async (req, res) => {
-  const plan = await planService.createPlan(req.body);
+const createPlans = catchAsync(async (req, res) => {
+  const plan = await planService.createPlans(req.body);
 
   res.status(httpStatus.CREATED).send(plan);
 });
@@ -86,7 +86,7 @@ const toggleSavePlan = catchAsync(async (req, res) => {
 module.exports = {
   getPlan,
   copyMeals,
-  createPlan,
+  createPlans,
   queryPlans,
   deletePlan,
   initMeal,

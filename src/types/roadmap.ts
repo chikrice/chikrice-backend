@@ -25,10 +25,17 @@ interface ChangePoint {
   weight: number;
 }
 
+export interface PlanReference {
+  plan: Types.ObjectId;
+  name: string;
+  date: Date;
+  number: number;
+}
+
 export interface Milestone {
   _id?: Types.ObjectId;
   month: number;
-  plans: PlanType[] | null;
+  plans: PlanReference[] | null;
   startWeight: number;
   targetWeight: number;
   baseCalories: number;

@@ -10,8 +10,46 @@ export const createPlan = {
     // Add other fields as needed for plan creation
   }),
 };
-
 export type CreatePlanDTO = z.infer<typeof createPlan.body>;
+
+export const createPlans = {
+  body: z
+    .object({
+      roadmapId: zObjectId,
+      milestoneId: zObjectId,
+      startDate: z.string().datetime(),
+      endDate: z.string().datetime(),
+      macrosRatio: z
+        .object({
+          carb: z.number().min(0).max(100),
+          pro: z.number().min(0).max(100),
+          fat: z.number().min(0).max(100),
+        })
+        .refine(
+          (data) => {
+            const sum = data.carb + data.pro + data.fat;
+            return Math.abs(sum - 100) < 0.01; // Allow for small floating point errors
+          },
+          {
+            message: 'Macros ratio must sum to 100%',
+            path: ['macrosRatio'],
+          },
+        ),
+      targetCalories: z.number().positive('Target calories must be positive'),
+    })
+    .refine(
+      (data) => {
+        const startDate = new Date(data.startDate);
+        const endDate = new Date(data.endDate);
+        return endDate >= startDate;
+      },
+      {
+        message: 'End date must be after or equal to start date',
+        path: ['endDate'],
+      },
+    ),
+};
+export type CreatePlansDTO = z.infer<typeof createPlans.body>;
 
 export const queryPlans = {
   query: z

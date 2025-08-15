@@ -6,7 +6,7 @@ import { Roadmap, User } from '@/models';
 import { createRoadmapOverview } from './overview';
 import { createRoadmapMilestones } from './milestone';
 
-import type { RoadmapType } from '@/types/roadmap';
+import type { RoadmapType } from '@/types';
 import type { PaginateOptions, QueryResult } from '@/types/plugins';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 

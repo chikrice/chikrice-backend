@@ -10,7 +10,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(auth(''), zodValidate(planValidation.createPlan), planController.createPlan)
+  .post(auth(''), zodValidate(planValidation.createPlans), planController.createPlans)
   .get(auth(''), zodValidate(planValidation.queryPlans), planController.queryPlans);
 
 router
@@ -33,7 +33,7 @@ router.route('/meal/copy/:planId').patch(auth(''), zodValidate(planValidation.co
 
 router
   .route('/meal/:planId')
-  .post(auth(''), zodValidate(planValidation.initCustomMeal), planController.initCustomMeal)
+  .post(auth(''), zodValidate(planValidation.initCustomMeal), planController.initMeal)
   .patch(auth(''), zodValidate(planValidation.updatePlanMeal), planController.updatePlanMeal)
   .delete(auth(''), zodValidate(planValidation.deletePlanMeal), planController.deletePlanMeal);
 
