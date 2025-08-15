@@ -1,3 +1,4 @@
+module.exports.planService = require('./plan');
 module.exports.roadmapService = require('./roadmap');
 module.exports.faqService = require('./faq.service');
 module.exports.planDayService = require('./plan-day');

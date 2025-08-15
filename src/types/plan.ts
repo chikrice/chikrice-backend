@@ -14,7 +14,7 @@ export interface Meal {
   macros: Macros;
 }
 
-export interface Plan {
+export interface PlanType {
   number: number;
   mealsCount: number;
   snacksCount: number;

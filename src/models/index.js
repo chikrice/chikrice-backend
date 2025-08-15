@@ -1,3 +1,4 @@
+const { Plan } = require('./plan');
 const { Roadmap } = require('./roadmap');
 const { PlanMonth } = require('./plan-month');
 const { BaseUser, User, Coach, Admin } = require('./user');
@@ -9,6 +10,7 @@ module.exports = {
   Admin,
   BaseUser,
   Roadmap,
+  Plan,
   PlanMonth,
   // eslint-disable-next-line global-require
   Faq: require('./faq'),

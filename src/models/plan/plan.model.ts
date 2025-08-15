@@ -10,9 +10,9 @@ import type { PaginateOptions, PlanType, QueryResult } from '@/types';
 
 // -------------------------------------
 
-type PlanDoc = Document & PlanType;
+export type PlanDoc = Document & PlanType;
 
-interface PlanModelInterface extends Model<PlanDoc> {
+export interface PlanModelInterface extends Model<PlanDoc> {
   paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<PlanDoc>>;
 }
 
