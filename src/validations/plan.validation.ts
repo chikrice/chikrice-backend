@@ -55,8 +55,10 @@ export const queryPlans = {
   query: z
     .object({
       sortBy: z.string(),
-      limit: z.number().int().min(1),
-      page: z.number().int().min(1),
+      limit: z.coerce.number().int().min(1),
+      page: z.coerce.number().int().min(1),
+      roadmapId: zObjectId,
+      milestoneId: zObjectId,
     })
     .partial(),
 };

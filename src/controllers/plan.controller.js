@@ -12,7 +12,8 @@ const createPlans = catchAsync(async (req, res) => {
 
 const queryPlans = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const result = await planService.queryPlans(options);
+  const filters = pick(req.query, ['roadmapId', 'milestoneId']);
+  const result = await planService.queryPlans({ ...options, ...filters });
 
   res.send(result);
 });
