@@ -67,6 +67,15 @@ export const getPlan = {
   }),
 };
 
+export const getMilestonePlans = {
+  query: z.object({
+    roadmapId: zObjectId,
+    milestoneId: zObjectId,
+  }),
+};
+
+export type GetMilestonePlansDTO = z.infer<typeof getMilestonePlans.query>;
+
 export const deletePlan = {
   params: z.object({
     planId: zObjectId,

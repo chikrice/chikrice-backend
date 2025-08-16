@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 
 const app = require('../../../src/app');
-const { Roadmap } = require('../../../src/models');
 const setupTestDB = require('../../utils/setupTestDB');
+const { Roadmap, Plan } = require('../../../src/models');
 const { userOneAccessToken } = require('../../fixtures/token.fixture');
 const { insertUsers, userOne } = require('../../fixtures/user.fixture');
 const { insertRoadmaps, roadmapOne } = require('../../fixtures/roadmap.fixture');
@@ -92,6 +92,12 @@ describe('POST /v1/plans', () => {
         expect(planRef).toHaveProperty('number', index + 1);
         expect(planRef.plan.toString()).toBe(res.body[index].id);
       });
+
+      // Verify plan is saved to db
+      const planId = milestone.plans[0].plan._id;
+
+      const plan = await Plan.findById(planId);
+      expect(plan).toBeDefined();
     });
 
     it('should create plans for a single day', async () => {

@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route('/')
   .post(auth(''), zodValidate(planValidation.createPlans), planController.createPlans)
-  .get(auth(''), zodValidate(planValidation.queryPlans), planController.queryPlans);
+  .get(auth(''), zodValidate(planValidation.getMilestonePlans), planController.getMilestonePlans);
 
 router
   .route('/meal/toggle-mode/:planId')

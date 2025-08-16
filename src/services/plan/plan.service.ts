@@ -12,12 +12,21 @@ import {
 } from './helpers';
 
 import type { PlanDoc } from '@/models/plan';
-import type { CreatePlanDTO, CreatePlansDTO } from '@/validations/plan.validation';
+import type { CreatePlansDTO, GetMilestonePlansDTO } from '@/validations/plan.validation';
 
 // ============================================
 // PLAN QUERY
 // ============================================
-export const queryPlans = async (options: Record<string, unknown>) => Plan.paginate(null, options);
+export const getMilestonePlans = async (data: GetMilestonePlansDTO) => {
+  const { roadmapId, milestoneId } = data;
+  const roadmap = await Roadmap.findById(roadmapId);
+  if (!roadmap) throw new ApiError(httpStatus.NOT_FOUND, 'Roadmap not found');
+
+  const milestone = roadmap.milestones.find((m) => m._id?.toString() === milestoneId);
+  if (!milestone) throw new ApiError(httpStatus.NOT_FOUND, 'Milestone not found in roadmap');
+
+  return milestone.plans;
+};
 
 export const getPlan = async (id: string) => {
   const plan = await Plan.findById(id);
@@ -29,16 +38,6 @@ export const getPlan = async (id: string) => {
 
 // ============================================
 // PLAN CREATION
-// ============================================
-export const createPlan = async (planData: CreatePlanDTO) => {
-  // TODO: Implement plan creation logic
-  // This will need to be adapted based on your new plan model structure
-  const plan = await Plan.create(planData);
-  return plan;
-};
-
-// ============================================
-// MAIN IMPLEMENTATION
 // ============================================
 export const createPlans = async (input: CreatePlansDTO): Promise<PlanDoc[]> => {
   const { startDate, endDate, macrosRatio, targetCalories, roadmapId, milestoneId } = input;
