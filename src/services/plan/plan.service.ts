@@ -17,7 +17,46 @@ import type { CreatePlanDTO, CreatePlansDTO } from '@/validations/plan.validatio
 // ============================================
 // PLAN QUERY
 // ============================================
-export const queryPlans = async (options: Record<string, unknown>) => Plan.paginate(null, options);
+export const queryPlans = async (options: Record<string, unknown>) => {
+  const { roadmapId, milestoneId, ...paginateOptions } = options as {
+    roadmapId?: string;
+    milestoneId?: string;
+    sortBy?: string;
+    limit?: string | number;
+    page?: string | number;
+    populate?: string;
+  };
+
+  if (roadmapId && milestoneId) {
+    const roadmap = await Roadmap.findById(roadmapId, { milestones: 1 });
+    if (!roadmap) throw new ApiError(httpStatus.NOT_FOUND, 'Roadmap not found');
+
+    const milestone = roadmap.milestones.find((m) => m._id?.toString() === milestoneId);
+    if (!milestone) throw new ApiError(httpStatus.NOT_FOUND, 'Milestone not found in roadmap');
+
+    const planIds = (milestone.plans || []).map((p) => p.plan);
+
+    // If no plans yet, return empty pagination structure
+    if (planIds.length === 0) {
+      return {
+        results: [],
+        page: 1,
+        limit: typeof paginateOptions.limit === 'number' ? paginateOptions.limit : 10,
+        totalPages: 0,
+        totalResults: 0,
+      };
+    }
+
+    // Use paginate with filter by _id in list and allow sorting by date or createdAt
+    // Note: paginate plugin will handle coercion of limit/page
+    // @ts-ignore - paginate types accept unknown filter
+    return Plan.paginate({ _id: { $in: planIds } }, paginateOptions);
+  }
+
+  // Default: return all plans paginated
+  // @ts-ignore - paginate types accept unknown filter
+  return Plan.paginate(null, paginateOptions);
+};
 
 export const getPlan = async (id: string) => {
   const plan = await Plan.findById(id);
