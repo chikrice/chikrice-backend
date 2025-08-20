@@ -110,11 +110,13 @@ export const togglePlanMealIngredient = {
   body: z.object({
     mealId: zObjectId,
     userId: zObjectId,
-    ingredient: z.object({}).passthrough(), // Allow any object structure
+    ingredientId: zObjectId,
   }),
 };
 
-export const initCustomMeal = {
+export type TogglePlanMealIngredientDTO = z.infer<typeof togglePlanMealIngredient.body>;
+
+export const createMeal = {
   params: z.object({
     planId: zObjectId,
   }),
@@ -149,6 +151,21 @@ export const submitMealWithAi = {
     mealId: zObjectId,
   }),
 };
+
+export const getMealSuggestions = {
+  params: z.object({
+    planId: zObjectId,
+  }),
+  query: z.object({
+    roadmapId: zObjectId,
+    mealNumber: z
+      .string()
+      .transform((val) => parseInt(val, 10))
+      .pipe(z.number().int().min(1)),
+  }),
+};
+
+export type GetMealSuggestionsDTO = z.infer<typeof getMealSuggestions.query>;
 
 export const addSuggestedMealToPlanMeals = {
   params: z.object({
@@ -189,7 +206,6 @@ export const chikricePlanGenerator = {
 };
 
 export type ToggleMealModeDTO = z.infer<typeof toggleMealMode.body>;
-export type TogglePlanMealIngredientDTO = z.infer<typeof togglePlanMealIngredient.body>;
 export type UpdatePlanMealDTO = z.infer<typeof updatePlanMeal.body>;
 export type SubmitMealWithAiDTO = z.infer<typeof submitMealWithAi.body>;
 export type AddSuggestedMealToPlanMealsDTO = z.infer<typeof addSuggestedMealToPlanMeals.body>;

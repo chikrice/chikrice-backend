@@ -9,15 +9,15 @@ import {
   generateDateArray,
   createPlanData,
   createPlanRef,
-} from './helpers';
+} from './plan-helpers';
 
-import type { PlanDoc } from '@/models/plan';
+import type { PlanReference } from '@/types';
 import type { CreatePlansDTO, GetMilestonePlansDTO } from '@/validations/plan.validation';
 
 // ============================================
 // PLAN QUERY
 // ============================================
-export const getMilestonePlans = async (data: GetMilestonePlansDTO) => {
+export const getMilestonePlans = async (data: GetMilestonePlansDTO): Promise<PlanReference[] | null> => {
   const { roadmapId, milestoneId } = data;
   const roadmap = await Roadmap.findById(roadmapId);
   if (!roadmap) throw new ApiError(httpStatus.NOT_FOUND, 'Roadmap not found');
@@ -39,7 +39,7 @@ export const getPlan = async (id: string) => {
 // ============================================
 // PLAN CREATION
 // ============================================
-export const createPlans = async (input: CreatePlansDTO): Promise<PlanDoc[]> => {
+export const createPlans = async (input: CreatePlansDTO): Promise<PlanReference[]> => {
   const { startDate, endDate, macrosRatio, targetCalories, roadmapId, milestoneId } = input;
 
   const roadmap = await Roadmap.findById(roadmapId);
@@ -74,7 +74,7 @@ export const createPlans = async (input: CreatePlansDTO): Promise<PlanDoc[]> => 
   roadmap.markModified('milestones');
   await roadmap.save();
 
-  return plans;
+  return planRefs;
 };
 
 // ============================================
@@ -101,84 +101,4 @@ export const toggleSavePlan = async (planId: string, body: { userId: string }) =
   // TODO: Implement plan update logic
 
   await user.save();
-};
-
-// ============================================
-// MEAL OPERATIONS
-
-// ============================================
-// MEAL CREATION
-// ============================================
-export const initMeal = async (planId: string) => {
-  // TODO: Implement custom meal initialization
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to initialize a custom meal
-};
-
-export const addSuggestedMealToPlanMeals = async (planId: string) => {
-  // TODO: Implement adding suggested meal logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to add suggested meal
-};
-
-export const copyMeals = async (planId: string, body: { sourcePlanId: string }) => {
-  const { sourcePlanId } = body;
-  const sourcePlan = await Plan.findById(sourcePlanId).lean();
-  const targetPlan = await Plan.findById(planId);
-
-  if (!sourcePlan) throw new ApiError(httpStatus.NOT_FOUND, 'Source plan not found');
-  if (!targetPlan) throw new ApiError(httpStatus.NOT_FOUND, 'Target plan not found');
-
-  // TODO: Implement meal copying logic
-  // targetPlan.meals = sourcePlan.meals;
-  // await targetPlan.save();
-};
-// ============================================
-// MEAL UPDATE
-// ============================================
-export const updatePlanMeal = async (planId: string) => {
-  // TODO: Implement meal update logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to update meal ingredients
-};
-
-export const toggleMealMode = async (planId: string) => {
-  // TODO: Implement meal mode toggle logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to toggle meal mode
-};
-
-export const togglePlanMealIngredient = async (planId: string) => {
-  // TODO: Implement ingredient toggle logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to toggle ingredients
-};
-
-export const submitMealWithAi = async (planId: string) => {
-  // TODO: Implement AI meal submission logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add AI integration logic
-};
-
-// ============================================
-// MEAL DELETE
-// ============================================
-export const deletePlanMeal = async (planId: string) => {
-  // TODO: Implement meal deletion logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to delete a meal
 };

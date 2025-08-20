@@ -12,7 +12,7 @@ const milestoneSchema = new mongoose.Schema({
   plans: {
     type: [
       {
-        plan: {
+        planId: {
           type: mongoose.SchemaTypes.ObjectId,
           ref: 'Plan',
           required: true,
@@ -29,6 +29,9 @@ const milestoneSchema = new mongoose.Schema({
           type: Number,
           required: true,
         },
+      },
+      {
+        _id: false,
       },
     ],
     default: null,

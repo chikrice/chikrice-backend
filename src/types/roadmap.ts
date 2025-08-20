@@ -1,7 +1,5 @@
 import { Types } from 'mongoose';
 
-import type { PlanType } from './plan';
-
 export type GoalSpeed = 'slow' | 'recommended' | 'fast';
 
 export interface ActivityLog {
@@ -26,7 +24,7 @@ interface ChangePoint {
 }
 
 export interface PlanReference {
-  plan: Types.ObjectId;
+  planId: Types.ObjectId;
   name: string;
   date: Date;
   number: number;

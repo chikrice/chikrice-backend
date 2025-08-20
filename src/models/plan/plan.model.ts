@@ -48,7 +48,7 @@ const PlanSchema = new mongoose.Schema(
     },
     meals: {
       type: [MealSchema],
-      default: null,
+      default: [],
     },
   },
   { timestamps: true },

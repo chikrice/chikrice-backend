@@ -1,8 +1,8 @@
 const httpStatus = require('http-status');
 
-const pick = require('../utils/pick');
-const { planService } = require('../services');
-const catchAsync = require('../utils/catchAsync');
+const pick = require('@/utils/pick');
+const { planService } = require('@/services');
+const catchAsync = require('@/utils/catchAsync');
 
 const createPlans = catchAsync(async (req, res) => {
   const plan = await planService.createPlans(req.body);
@@ -24,8 +24,8 @@ const getPlan = catchAsync(async (req, res) => {
   res.send(plan);
 });
 
-const initMeal = catchAsync(async (req, res) => {
-  await planService.initMeal(req.params.planId);
+const createMeal = catchAsync(async (req, res) => {
+  await planService.createMeal(req.params.planId);
 
   res.status(httpStatus.OK).send();
 });
@@ -84,18 +84,27 @@ const toggleSavePlan = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send();
 });
 
+const getMealSuggestions = catchAsync(async (req, res) => {
+  const data = pick(req.query, ['roadmapId', 'mealNumber']);
+  const result = await planService.getMealSuggestions(req.params.planId, data);
+
+  res.send(result);
+});
+
 module.exports = {
   getPlan,
   copyMeals,
-  createPlans,
-  getMilestonePlans,
   deletePlan,
-  initMeal,
+  createPlans,
+  toggleSavePlan,
+  getMilestonePlans,
+  //
+  createMeal,
   toggleMealMode,
   submitMealWithAi,
   updatePlanMeal,
   deletePlanMeal,
-  toggleSavePlan,
   togglePlanMealIngredient,
+  getMealSuggestions,
   addSuggestedMealToPlanMeals,
 };

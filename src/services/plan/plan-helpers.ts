@@ -1,4 +1,4 @@
-import type { TargetMacros, MacrosRatio, MealsCount } from '@/types';
+import type { Macros, MacrosRatio, Meal, MealsCount } from '@/types';
 
 // -------------------------------------
 
@@ -34,7 +34,7 @@ export const generateDateRange = (startDate: string, endDate: string): number =>
 
   const timeDiff = end.getTime() - start.getTime();
 
-  return Math.floor(timeDiff / MILLISECONDS_PER_DAY) + 1;
+  return Math.floor(timeDiff / MILLISECONDS_PER_DAY);
 };
 
 export const generateDateArray = (startDate: string, endDate: string): Date[] => {
@@ -53,7 +53,7 @@ export const formatDayName = (date: Date): string => date.toLocaleDateString('en
 // ============================================
 // MACRO CALCULATIONS
 // ============================================
-export const calculateTargetMacros = (ratio: MacrosRatio, calories: number): TargetMacros => {
+export const calculateTargetMacros = (ratio: MacrosRatio, calories: number): Macros => {
   const { carb, pro, fat } = ratio;
 
   const carbCalories = (carb / 100) * calories;
@@ -89,7 +89,7 @@ export const calculateMealsCount = (calories: number): MealsCount => {
 export const createPlanData = (
   date: Date,
   dayNumber: number,
-  targetMacros: TargetMacros,
+  targetMacros: Macros,
   mealsCount: number,
   snacksCount: number,
 ) => ({
@@ -100,12 +100,31 @@ export const createPlanData = (
   date,
   targetMacros,
   consumedMacros: { cal: 0, pro: 0, carb: 0, fat: 0 },
-  meals: null,
+  meals: [],
 });
 
+// ============================================
+// CREATE PLAN REFERENCE FOR MILESTONES PLANS
+// ============================================
 export const createPlanRef = (planId: string, date: Date, dayNumber: number) => ({
-  plan: planId,
+  planId,
   name: formatDayName(date),
   date,
   number: dayNumber,
 });
+
+// ============================================
+// CALCULATE THE PLAN CONSUMED MACROS
+// ============================================
+export const recalcPlanConsumedMacros = (meals: Meal[]): Macros => {
+  const total: Macros = { cal: 0, carb: 0, pro: 0, fat: 0 };
+
+  meals.forEach((meal) => {
+    total.cal += meal.macros?.cal || 0;
+    total.carb += meal.macros?.carb || 0;
+    total.pro += meal.macros?.pro || 0;
+    total.fat += meal.macros?.fat || 0;
+  });
+
+  return total;
+};
