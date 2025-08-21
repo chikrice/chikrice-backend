@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 
-import { RoadmapType } from '@/types';
-
 import { toJSON, paginate } from '../plugins';
 
 import milestoneSchema from './milestone';
@@ -9,7 +7,7 @@ import activityLogSchema from './activity-log';
 import weightProgressionSchema from './weight-progression-schema';
 
 import type { Document, Model } from 'mongoose';
-import type { PaginateOptions, QueryResult } from '@/types';
+import type { PaginateOptions, QueryResult, RoadmapType } from 'chikrice-types';
 
 // -------------------------------------
 

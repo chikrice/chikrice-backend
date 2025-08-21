@@ -10,7 +10,7 @@ import {
   calculateRoadmapPeriod,
 } from './helpers';
 
-import type { Overview } from '@/types';
+import type { Overview } from 'chikrice-types';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 
 // -------------------------------------

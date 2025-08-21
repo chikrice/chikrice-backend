@@ -1,11 +1,9 @@
 import mongoose from 'mongoose';
 
-import { IngredientType } from '@/types';
-
 import { toJSON, paginate } from '../plugins';
 
 import type { Document, Model } from 'mongoose';
-import type { PaginateOptions, QueryResult } from '@/types';
+import type { PaginateOptions, QueryResult, IngredientType } from 'chikrice-types';
 
 // -------------------------------------
 

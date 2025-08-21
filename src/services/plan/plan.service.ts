@@ -11,7 +11,7 @@ import {
   createPlanRef,
 } from './plan-helpers';
 
-import type { PlanReference } from '@/types';
+import type { PlanReference } from 'chikrice-types';
 import type { CreatePlansDTO, GetMilestonePlansDTO } from '@/validations/plan.validation';
 
 // ============================================

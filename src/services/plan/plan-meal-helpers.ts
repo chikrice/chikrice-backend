@@ -4,7 +4,7 @@ import { Roadmap } from '@/models';
 import ApiError from '@/utils/ApiError';
 import { PlanDoc } from '@/models/plan';
 
-import type { IngredientType, Macros, Meal, MealIngredient, MealIngredients, PlanReference } from '@/types';
+import type { IngredientType, Macros, Meal, MealIngredient, MealIngredients, PlanReference } from 'chikrice-types';
 
 // ============================================
 // GET MEAL RECOMMENDED MACROS

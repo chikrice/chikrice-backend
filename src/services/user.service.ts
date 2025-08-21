@@ -6,7 +6,7 @@ import { roleModelMap } from '@/models/user';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
 import type { UserBaseDoc } from '@/models/user/user-base';
-import type { PaginateOptions, QueryResult, TimeSlotPreferences } from '@/types';
+import type { PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
 import type {
   CreateUserDTO,
   UpdateUserDTO,
