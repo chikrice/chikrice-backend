@@ -7,7 +7,7 @@ import { roles } from '@/config/roles';
 import { paginate, toJSON } from '../plugins';
 
 import type { Document, Model, Types } from 'mongoose';
-import type { PaginateOptions, QueryResult, UserBase } from '@/types';
+import type { PaginateOptions, QueryResult, UserBase } from 'chikrice-types';
 
 // -------------------------------------
 

@@ -7,7 +7,6 @@ const httpStatus = require('http-status');
 const compression = require('compression');
 const mongoSanitize = require('express-mongo-sanitize');
 
-require('@/cron/roadmap-job');
 const routes = require('@/routes/v1');
 const morgan = require('@/config/morgan');
 const config = require('@/config/config');
@@ -17,6 +16,9 @@ const { authLimiter } = require('@/middlewares/rateLimiter');
 const { errorConverter, errorHandler } = require('@/middlewares/error');
 
 import type { Request, Response, NextFunction } from 'express';
+
+require('@/cron/roadmap-job');
+
 // -------------------------------------
 
 const app = express();

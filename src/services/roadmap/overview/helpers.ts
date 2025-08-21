@@ -1,6 +1,6 @@
 import { roundToDecimal } from '@/utils/numbers';
 
-import type { GoalSpeed } from '@/types';
+import type { GoalSpeed } from 'chikrice-types';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 
 // -------------------------------------

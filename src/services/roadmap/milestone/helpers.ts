@@ -4,7 +4,7 @@ import { getIsGainWeight } from '../common';
 
 import { ratioSplitRules } from './data';
 
-import type { CalorieAdjustment, MacrosRatio } from '@/types';
+import type { CalorieAdjustment, MacrosRatio } from 'chikrice-types';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 
 // ============================================

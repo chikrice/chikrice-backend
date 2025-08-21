@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 import User from './user-base';
 import addressSchema from './address-schema';
 
-import type { UserClient } from '@/types';
 import type { Document, Model } from 'mongoose';
+import type { UserClient } from 'chikrice-types';
 
 // -------------------------------------
 

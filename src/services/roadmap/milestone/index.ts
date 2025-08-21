@@ -5,7 +5,7 @@ import {
   calculateCalorieAdjustment,
 } from './helpers';
 
-import type { Milestone, Overview } from '@/types';
+import type { Milestone, Overview } from 'chikrice-types';
 import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 
 // -------------------------------------

@@ -1,6 +1,6 @@
 const { Plan } = require('./plan');
 const { Roadmap } = require('./roadmap');
-const { PlanMonth } = require('./plan-month');
+const { Ingredient } = require('./ingredient');
 const { BaseUser, User, Coach, Admin } = require('./user');
 
 // Exporting all models, including the user models
@@ -11,7 +11,7 @@ module.exports = {
   BaseUser,
   Roadmap,
   Plan,
-  PlanMonth,
+  Ingredient,
   // eslint-disable-next-line global-require
   Faq: require('./faq'),
   // eslint-disable-next-line global-require
@@ -19,5 +19,4 @@ module.exports = {
   // eslint-disable-next-line global-require
   PlanDay: require('./plan-day'),
   // eslint-disable-next-line global-require
-  Ingredient: require('./ingredient'),
 };

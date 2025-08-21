@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route('/')
   .post(auth(''), zodValidate(planValidation.createPlans), planController.createPlans)
-  .get(auth(''), zodValidate(planValidation.queryPlans), planController.queryPlans);
+  .get(auth(''), zodValidate(planValidation.getMilestonePlans), planController.getMilestonePlans);
 
 router
   .route('/meal/toggle-mode/:planId')
@@ -26,6 +26,10 @@ router
   .patch(auth(''), zodValidate(planValidation.submitMealWithAi), planController.submitMealWithAi);
 
 router
+  .route('/meal/suggestions/:planId')
+  .get(auth(''), zodValidate(planValidation.getMealSuggestions), planController.getMealSuggestions);
+
+router
   .route('/meal/add-suggested/:planId')
   .patch(auth(''), zodValidate(planValidation.addSuggestedMealToPlanMeals), planController.addSuggestedMealToPlanMeals);
 
@@ -33,7 +37,7 @@ router.route('/meal/copy/:planId').patch(auth(''), zodValidate(planValidation.co
 
 router
   .route('/meal/:planId')
-  .post(auth(''), zodValidate(planValidation.initCustomMeal), planController.initMeal)
+  .post(auth(''), zodValidate(planValidation.createMeal), planController.createMeal)
   .patch(auth(''), zodValidate(planValidation.updatePlanMeal), planController.updatePlanMeal)
   .delete(auth(''), zodValidate(planValidation.deletePlanMeal), planController.deletePlanMeal);
 

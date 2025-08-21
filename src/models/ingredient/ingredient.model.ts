@@ -1,12 +1,19 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const { macrosSchema } = require('../common');
-const { toJSON, paginate } = require('../plugins');
-const { ingredientCategories } = require('../../constants');
+import { toJSON, paginate } from '../plugins';
+
+import type { Document, Model } from 'mongoose';
+import type { PaginateOptions, QueryResult, IngredientType } from 'chikrice-types';
 
 // -------------------------------------
 
-const ingredientSchema = mongoose.Schema(
+export type IngredientDoc = Document & IngredientType;
+
+interface IngredientModelInterface extends Model<IngredientDoc> {
+  paginate(filter: unknown, options: PaginateOptions): Promise<QueryResult<IngredientDoc>>;
+}
+
+const ingredientSchema = new mongoose.Schema(
   {
     icon: {
       type: String,
@@ -33,10 +40,20 @@ const ingredientSchema = mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ingredientCategories,
+      enum: [
+        'fats',
+        'carbs',
+        'dairy',
+        'fruits',
+        'snacks',
+        'proteins',
+        'condiments',
+        'vegetables',
+        'sauces',
+        'beverages',
+      ],
       required: true,
     },
-
     isRaw: {
       type: Boolean,
       default: false,
@@ -60,8 +77,24 @@ const ingredientSchema = mongoose.Schema(
         ar: { type: String, trim: true },
         fa: { type: String, trim: true },
       },
-
-      nutrientFacts: macrosSchema,
+      nutrientFacts: {
+        cal: {
+          type: Number,
+          required: true,
+        },
+        pro: {
+          type: Number,
+          required: true,
+        },
+        carb: {
+          type: Number,
+          required: true,
+        },
+        fat: {
+          type: Number,
+          required: true,
+        },
+      },
     },
   },
   {
@@ -72,6 +105,4 @@ const ingredientSchema = mongoose.Schema(
 ingredientSchema.plugin(toJSON);
 ingredientSchema.plugin(paginate);
 
-const Ingredient = mongoose.model('Ingredient', ingredientSchema);
-
-module.exports = Ingredient;
+export const Ingredient = mongoose.model<IngredientDoc, IngredientModelInterface>('Ingredient', ingredientSchema);

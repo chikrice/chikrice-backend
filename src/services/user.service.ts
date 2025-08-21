@@ -3,10 +3,11 @@ import httpStatus from 'http-status';
 
 import ApiError from '@/utils/ApiError';
 import { roleModelMap } from '@/models/user';
+import getCurrentTimeSlot from '@/utils/get-time-slot';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
 import type { UserBaseDoc } from '@/models/user/user-base';
-import type { PaginateOptions, QueryResult, TimeSlotPreferences } from '@/types';
+import type { Meal, MealIngredient, PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
 import type {
   CreateUserDTO,
   UpdateUserDTO,
@@ -145,20 +146,20 @@ export const deleteUserAddressById = async (userId: Types.ObjectId, addressId: T
 };
 
 // ============================================
-// USER INGREDIENT COUNT UPDATES
+// USER MEAL PREFERENCES UPDATES
 // ============================================
-export const updateUserIngredientCount = async (
-  userId: Types.ObjectId,
-  ingredient: { id: string; macroType: string },
-  timeSlot: string,
-  isAdding: boolean,
-): Promise<void> => {
+export const updateUserMealPreferences = async (userId: Types.ObjectId, meal: Meal): Promise<void> => {
   const user = await User.findById(userId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  // Initialize mealPreferences structure
+  const timeSlot = getCurrentTimeSlot();
+
+  if (!timeSlot) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Unable to determine current time slot');
+  }
+
   if (!user.mealPreferences) {
     user.mealPreferences = {};
   }
@@ -167,22 +168,32 @@ export const updateUserIngredientCount = async (
     user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {} };
   }
 
-  // Get or create ingredient entry
-  const { macroType, id: ingredientId } = ingredient;
+  // Update preferences based on final meal state
+  Object.entries(meal.ingredients).forEach(([macroType, ingredients]) => {
+    if (
+      macroType in user.mealPreferences[timeSlot] &&
+      user.mealPreferences[timeSlot][macroType as keyof TimeSlotPreferences]
+    ) {
+      ingredients.forEach((ingredient: MealIngredient) => {
+        const { ingredientId, portion } = ingredient;
+        const macroPrefs = user.mealPreferences[timeSlot][macroType as keyof TimeSlotPreferences];
 
-  const timeSlotPrefs = user.mealPreferences[timeSlot];
-  const macroPrefs = timeSlotPrefs[macroType as keyof TimeSlotPreferences];
+        if (macroPrefs) {
+          // Initialize ingredient preference if it doesn't exist
+          if (!macroPrefs[ingredientId]) {
+            macroPrefs[ingredientId] = {
+              count: 0,
+              portionSize: null,
+            };
+          }
 
-  if (!macroPrefs![ingredientId]) {
-    macroPrefs![ingredientId] = {
-      count: 0,
-      portionSize: null,
-    };
-  }
-
-  // Update count
-  const countChange = isAdding ? 1 : -1;
-  macroPrefs![ingredientId].count += countChange;
+          // Update count and portion size based on final meal state
+          macroPrefs[ingredientId].count += 1;
+          macroPrefs[ingredientId].portionSize = portion.qty;
+        }
+      });
+    }
+  });
 
   user.markModified('mealPreferences');
   await user.save();
