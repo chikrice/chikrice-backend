@@ -11,7 +11,6 @@ const coachRoute = require('./coach.route');
 const healthRoute = require('./health.route');
 const roadmapRoute = require('./roadmap.route');
 const planDayRoute = require('./plan-day.route');
-const planMonthRoute = require('./plan-month.route');
 const ingredientRoute = require('./ingredient.route');
 
 const router = express.Router();
@@ -48,10 +47,6 @@ const defaultRoutes = [
   {
     path: '/ingredients',
     route: ingredientRoute,
-  },
-  {
-    path: '/plans-month',
-    route: planMonthRoute,
   },
   {
     path: '/health',

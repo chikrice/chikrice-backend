@@ -1,24 +1,30 @@
 import httpStatus from 'http-status';
 
 import ApiError from '@/utils/ApiError';
-import { Ingredient, Plan } from '@/models';
+import { Plan, Ingredient } from '@/models';
+
+import { updateUserMealPreferences } from '../user.service';
 
 import { recalcPlanConsumedMacros } from './plan-helpers';
 import {
   getMealById,
-  calcMealMacros,
   getIngredientArray,
   findIngredientIndex,
-  buildPortionedIngredient,
-  calcDefaultPortionQty,
   getMealRecommendedMacros,
   getMilestonePlansForSuggestions,
+  getUserPortionPreference,
+  calculateOptimalPortionSize,
+  removeIngredientFromMeal,
+  addIngredientToMeal,
+  updateMealMacros,
 } from './plan-meal-helpers';
 
-import type { Meal } from '@/types';
-import type { GetMealSuggestionsDTO, TogglePlanMealIngredientDTO } from '@/validations/plan.validation';
-
-// -------------------------------------
+import type { Meal } from 'chikrice-types';
+import type {
+  GetMealSuggestionsDTO,
+  TogglePlanMealIngredientDTO,
+  ToggleMealModeDTO,
+} from '@/validations/plan.validation';
 
 // ============================================
 // MEAL CREATION
@@ -32,6 +38,7 @@ export const createMeal = async (planId: string): Promise<void> => {
   const newMeal = {
     number,
     recommendedMacros,
+    ingredients: { carb: [], pro: [], fat: [], free: [] },
   };
 
   plan.meals.push(newMeal);
@@ -71,19 +78,11 @@ export const updatePlanMeal = async (planId: string): Promise<void> => {
   // Add logic to update meal ingredients
 };
 
-export const toggleMealMode = async (planId: string): Promise<void> => {
-  // TODO: Implement meal mode toggle logic
-  const plan = await Plan.findById(planId);
-  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to toggle meal mode
-};
-
 // ============================================
-// TOGGLE THE MEAL INGREDIENT ON AND OFF
+// TOGGLE MEAL MODE
 // ============================================
-export const togglePlanMealIngredient = async (planId: string, data: TogglePlanMealIngredientDTO): Promise<void> => {
-  const { mealId, ingredientId } = data;
+export const toggleMealMode = async (planId: string, data: ToggleMealModeDTO): Promise<void> => {
+  const { mealId, userId, mode } = data;
 
   const plan = await Plan.findById(planId);
   if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
@@ -91,28 +90,46 @@ export const togglePlanMealIngredient = async (planId: string, data: TogglePlanM
   const { meal } = getMealById(plan, mealId);
   if (!meal) throw new ApiError(httpStatus.NOT_FOUND, 'Meal not found');
 
-  const ingredient = await Ingredient.findById(ingredientId);
+  meal.mode = mode;
+
+  if (mode === 'view') {
+    await updateUserMealPreferences(userId, meal);
+  }
+
+  plan.markModified('meals');
+  await plan.save();
+};
+
+// ============================================
+// TOGGLE THE MEAL INGREDIENT ON AND OFF
+// ============================================
+export const togglePlanMealIngredient = async (planId: string, data: TogglePlanMealIngredientDTO): Promise<void> => {
+  const { mealId, ingredientId, userId } = data;
+
+  const [plan, ingredient] = await Promise.all([Plan.findById(planId), Ingredient.findById(ingredientId)]);
+
+  if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
   if (!ingredient) throw new ApiError(httpStatus.NOT_FOUND, 'Ingredient not found');
 
-  const macroType = ingredient?.macroType as keyof Meal['ingredients'];
+  const { meal } = getMealById(plan, mealId);
+  if (!meal) throw new ApiError(httpStatus.NOT_FOUND, 'Meal not found');
 
+  const macroType = ingredient?.macroType as keyof Meal['ingredients'];
   if (!macroType) throw new ApiError(httpStatus.BAD_REQUEST, 'Ingredient macroType is required');
 
   const macroArr = getIngredientArray(meal, macroType);
+  const ingredientIndex = findIngredientIndex(macroArr, ingredientId);
 
-  const idx = findIngredientIndex(macroArr, ingredientId);
-
-  if (idx !== -1) {
-    // remove
-    macroArr.splice(idx, 1);
+  if (ingredientIndex !== -1) {
+    removeIngredientFromMeal(macroArr, ingredientIndex);
   } else {
-    // add with default portion based on recommendedMacros
-    const qty = calcDefaultPortionQty(ingredient, meal.recommendedMacros);
-    const portioned = buildPortionedIngredient(ingredient, qty);
-    macroArr.push(portioned);
+    const userPreference = await getUserPortionPreference(userId, ingredientId, macroType);
+    const portionSize = calculateOptimalPortionSize(ingredient, meal, userPreference);
+
+    addIngredientToMeal(macroArr, ingredient, portionSize);
   }
 
-  meal.macros = calcMealMacros(meal);
+  updateMealMacros(meal);
   plan.consumedMacros = recalcPlanConsumedMacros(plan.meals);
 
   plan.markModified('meals');
@@ -133,12 +150,14 @@ export const submitMealWithAi = async (planId: string): Promise<void> => {
 // ============================================
 // MEAL DELETE
 // ============================================
-export const deletePlanMeal = async (planId: string): Promise<void> => {
-  // TODO: Implement meal deletion logic
+export const deletePlanMeal = async (planId: string, mealId: string): Promise<void> => {
   const plan = await Plan.findById(planId);
   if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
 
-  // Add logic to delete a meal
+  plan.meals = plan.meals.filter((meal) => meal._id!.toString() !== mealId);
+  plan.consumedMacros = recalcPlanConsumedMacros(plan.meals);
+
+  await plan.save();
 };
 
 // ============================================
@@ -158,25 +177,20 @@ export const getMealSuggestions = async (planId: string, data: GetMealSuggestion
   const previousPlansCount = Math.min(3, currentPlanIndex);
   const previousPlans = milestonePlans.slice(Math.max(0, currentPlanIndex - previousPlansCount), currentPlanIndex);
 
-  // Extract plan IDs from previous plans
   const previousPlanIds = previousPlans.map((plan) => plan.planId);
 
-  // Fetch previous Plan documents to access their meals
   const previousPlanDocuments = await Plan.find({ _id: { $in: previousPlanIds } }).lean();
 
-  // Collect unique meal suggestions
   const mealSuggestions: Meal[] = [];
   const seenMealIds = new Set<string>();
 
   previousPlanDocuments.forEach((planDoc) => {
     const { meals } = planDoc;
-
     if (Array.isArray(meals) && meals[mealNumber - 1]) {
       const meal = meals[mealNumber - 1];
 
-      // Ensure meal exists and hasn't been seen before
       if (meal && meal._id && !seenMealIds.has(meal._id.toString())) {
-        mealSuggestions.unshift(meal); // Add to beginning for chronological order
+        mealSuggestions.unshift(meal);
         seenMealIds.add(meal._id.toString());
       }
     }

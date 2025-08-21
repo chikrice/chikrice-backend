@@ -2227,9 +2227,9 @@ charm@~0.1.1:
   integrity sha512-syedaZ9cPe7r3hoQA9twWYKu5AIyCswN5+szkmPBe9ccdLrj4bYaCnLVPTLd2kgVRc7+zoX4tyPgRnFKCj5YjQ==
 
 chikrice-types@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/chikrice-types/-/chikrice-types-1.0.5.tgz#11dce701d93399bcff6ef1d03aeac8deb3ada189"
-  integrity sha512-J9c6gdyQQk3+YeGQ90xec0CPJHWOfC+YcoRCiXIrmesnlYSTM6uNNRQ9l1otEhnmuMCmW9odabi02wi35GVuGA==
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/chikrice-types/-/chikrice-types-1.0.9.tgz#3425f5492637c5c2a374fb6769aba53ac78d12ab"
+  integrity sha512-/LweeGp8h7mDQ2jkLKFbjuL4SZilmfM+afc/Wxu8yWbNIfs5EvC8cl1v7sBrQMQBDQizvVs8H8emHWPCCBwO7A==
 
 chokidar@^3.5.2, chokidar@^3.5.3:
   version "3.6.0"

@@ -6,7 +6,7 @@ import { toJSON, paginate } from '../plugins';
 import MealSchema from './meal-schema';
 
 import type { Document, Model } from 'mongoose';
-import type { PaginateOptions, PlanType, QueryResult } from '@/types';
+import type { PaginateOptions, PlanType, QueryResult } from 'chikrice-types';
 
 // -------------------------------------
 

@@ -205,8 +205,6 @@ const togglePlanDayMealIngredient = async (planId, body) => {
     ingredient,
   );
 
-  const currentTimeSlot = getCurrentTimeSlot();
-
   if (ingredientIndex !== -1) {
     // Ingredient exists: Remove it and update macros
     const removedIngredient = macroGroup.splice(ingredientIndex, 1)[0];
@@ -214,7 +212,11 @@ const togglePlanDayMealIngredient = async (planId, body) => {
     updateMealMacros(activeMeal, removedIngredient.macros, false);
 
     // Update user preferences: Decrement count
-    await userService.updateUserIngredientCount(userId, ingredient, currentTimeSlot, false);
+    await userService.updateUserIngredientCount({
+      userId,
+      ingredient,
+      isAdding: false,
+    });
   } else {
     // Ingredient doesn't exist: Add it with default serving and update macros
     const ingToAdd = await calcDefaultIngredientServing(userId, ingredient, planDay.targetMacros);
@@ -223,7 +225,12 @@ const togglePlanDayMealIngredient = async (planId, body) => {
     updateMealMacros(activeMeal, ingToAdd.macros, true);
 
     // Update user preferences: Increment count
-    await userService.updateUserIngredientCount(userId, ingredient, currentTimeSlot, true);
+    await userService.updateUserIngredientCount({
+      userId,
+      ingredient,
+      isAdding: true,
+      portionSize: ingToAdd.portion.qty,
+    });
   }
 
   // Step 5: Recalculate consumed macros and save changes

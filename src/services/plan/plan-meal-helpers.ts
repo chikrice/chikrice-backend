@@ -1,8 +1,9 @@
 import httpStatus from 'http-status';
 
-import { Roadmap } from '@/models';
 import ApiError from '@/utils/ApiError';
 import { PlanDoc } from '@/models/plan';
+import { Roadmap, User } from '@/models';
+import getCurrentTimeSlot from '@/utils/get-time-slot';
 
 import type { IngredientType, Macros, Meal, MealIngredient, MealIngredients, PlanReference } from 'chikrice-types';
 
@@ -117,7 +118,7 @@ export const buildPortionedIngredient = (ingredient: IngredientType, qty: number
 
   return {
     // Only include fields that belong to MealIngredient schema
-    ingredientId: ingredient._id,
+    ingredientId: ingredient._id.toString(),
     name: ingredient.name,
     icon: ingredient.icon || '',
     macroType: ingredient.macroType,
@@ -159,4 +160,52 @@ export const calcMealMacros = (meal: Meal): Macros => {
   });
 
   return total;
+};
+
+// ============================================
+// USER MEAL PREFERENCES HELPERS
+// ============================================
+export const getUserPortionPreference = async (
+  userId: string,
+  ingredientId: string,
+  macroType: keyof MealIngredients,
+): Promise<number | null> => {
+  const user = await User.findById(userId);
+  if (!user?.mealPreferences) return null;
+
+  const timeSlot = getCurrentTimeSlot();
+  if (!timeSlot) return null;
+
+  return user.mealPreferences[timeSlot]?.[macroType]?.[ingredientId]?.portionSize ?? null;
+};
+
+export const calculateOptimalPortionSize = (
+  ingredient: IngredientType,
+  meal: Meal,
+  userPreference: number | null,
+): number => userPreference ?? calcDefaultPortionQty(ingredient, meal.recommendedMacros);
+
+// ============================================
+// INGREDIENT TOGGLE OPERATIONS
+// ============================================
+export const removeIngredientFromMeal = (macroArr: MealIngredient[], ingredientIndex: number): MealIngredient =>
+  macroArr.splice(ingredientIndex, 1)[0];
+
+export const addIngredientToMeal = (
+  macroArr: MealIngredient[],
+  ingredient: IngredientType,
+  portionSize: number,
+): void => {
+  const portioned = buildPortionedIngredient(ingredient, portionSize);
+  macroArr.push(portioned);
+};
+
+// ============================================
+// MEAL UPDATE OPERATIONS
+// ============================================
+export const updateMealMacros = (meal: Meal): Macros => {
+  const updatedMacros = calcMealMacros(meal);
+  // eslint-disable-next-line
+  meal.macros = updatedMacros;
+  return updatedMacros;
 };
