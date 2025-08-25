@@ -45,6 +45,11 @@ const updateUserAddress = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send();
 });
 
+const updateUserPreferences = catchAsync(async (req, res) => {
+  await userService.updateUserPreferences(req.params.userId, req.body);
+  res.status(httpStatus.OK).send();
+});
+
 const deleteUserAddress = catchAsync(async (req, res) => {
   await userService.deleteUserAddressById(req.query.userId, req.params.addressId);
   res.status(httpStatus.NO_CONTENT).send();
@@ -64,5 +69,6 @@ module.exports = {
   initCoachCollab,
   createUserAddress,
   updateUserAddress,
+  updateUserPreferences,
   deleteUserAddress,
 };

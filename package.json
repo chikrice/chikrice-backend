@@ -13,7 +13,6 @@
     "start": "pm2 start ecosystem.config.json --no-daemon",
     "restart": "pm2 restart all ecosystem.config.json --no-daemon",
     "dev": "cross-env NODE_ENV=development nodemon --exec ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
-    "dev:test": "cross-env NODE_ENV=test nodemon --exec ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:strict": "cross-env NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "test": "jest -i --colors --verbose --detectOpenHandles",
     "test:watch": "jest -i --watchAll",

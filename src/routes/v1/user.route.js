@@ -30,6 +30,10 @@ router
   .delete(auth(''), zodValidate(userValidation.deleteUserAddress), userController.deleteUserAddress);
 
 router
+  .route('/preferences/:userId')
+  .patch(auth(''), zodValidate(userValidation.updateUserPreferences), userController.updateUserPreferences);
+
+router
   .route('/init-coach-collab/:userId')
   .post(auth(''), zodValidate(userValidation.initCoachCollab), userController.initCoachCollab);
 

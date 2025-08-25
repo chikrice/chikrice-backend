@@ -117,8 +117,10 @@ const roadmapOne = {
   ],
   activityLog: [
     {
-      active: false,
-      date: '2025-08-04T00:00:00.000Z',
+      date: '2025-08-04',
+      consumedCalories: 0,
+      targetCalories: 2345,
+      completionPercentage: 0,
     },
   ],
   _id: Types.ObjectId(),

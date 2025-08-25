@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import ApiError from '@/utils/ApiError';
 import { Plan, Ingredient } from '@/models';
 
-import { updateUserMealPreferences } from '../user.service';
+import { updateUserPreferences } from '../user.service';
 
 import { recalcPlanConsumedMacros } from './plan-helpers';
 import {
@@ -24,6 +24,7 @@ import type {
   GetMealSuggestionsDTO,
   TogglePlanMealIngredientDTO,
   ToggleMealModeDTO,
+  AddSuggestedMealToPlanMealsDTO,
 } from '@/validations/plan.validation';
 
 // ============================================
@@ -46,12 +47,17 @@ export const createMeal = async (planId: string): Promise<void> => {
   await plan.save();
 };
 
-export const addSuggestedMealToPlanMeals = async (planId: string): Promise<void> => {
-  // TODO: Implement adding suggested meal logic
+export const addSuggestedMealToPlanMeals = async (
+  planId: string,
+  data: AddSuggestedMealToPlanMealsDTO,
+): Promise<void> => {
   const plan = await Plan.findById(planId);
+  const { meal } = data;
   if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
-
-  // Add logic to add suggested meal
+  plan.meals.push(meal);
+  plan.consumedMacros = recalcPlanConsumedMacros(plan.meals);
+  plan.markModified('meals');
+  await plan.save();
 };
 
 export const copyMeals = async (planId: string, body: { sourcePlanId: string }): Promise<void> => {
@@ -93,7 +99,7 @@ export const toggleMealMode = async (planId: string, data: ToggleMealModeDTO): P
   meal.mode = mode;
 
   if (mode === 'view') {
-    await updateUserMealPreferences(userId, meal);
+    await updateUserPreferences(userId, meal);
   }
 
   plan.markModified('meals');

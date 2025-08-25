@@ -47,6 +47,7 @@ module.exports = {
     url: (() => {
       if (envVars.NODE_ENV === 'production') return envVars.MONGODB_URL_PROD;
       if (envVars.NODE_ENV === 'staging') return envVars.MONGODB_URL_STAGING;
+      if (envVars.NODE_ENV === 'test') return envVars.MONGODB_URL_TEST;
       return envVars.MONGODB_URL_DEV;
     })(),
     options: {
