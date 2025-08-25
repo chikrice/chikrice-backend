@@ -7,13 +7,14 @@ import getCurrentTimeSlot from '@/utils/get-time-slot';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
 import type { UserBaseDoc } from '@/models/user/user-base';
-import type { Meal, MealIngredient, PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
+import type { MealIngredient, PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
 import type {
   CreateUserDTO,
   UpdateUserDTO,
   CreateUserAddressDTO,
   UpdateUserAddressDTO,
   InitCoachCollabDTO,
+  updateUserPreferencesDTO,
 } from '@/validations/user.validation';
 
 // -------------------------------------
@@ -148,8 +149,10 @@ export const deleteUserAddressById = async (userId: Types.ObjectId, addressId: T
 // ============================================
 // USER MEAL PREFERENCES UPDATES
 // ============================================
-export const updateUserMealPreferences = async (userId: Types.ObjectId, meal: Meal): Promise<void> => {
+export const updateUserPreferences = async (userId: Types.ObjectId, data: updateUserPreferencesDTO): Promise<void> => {
   const user = await User.findById(userId);
+  const { meal, isPortion, count } = data;
+
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -168,7 +171,8 @@ export const updateUserMealPreferences = async (userId: Types.ObjectId, meal: Me
     user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {} };
   }
 
-  // Update preferences based on final meal state
+  if (!meal.ingredients) return;
+
   Object.entries(meal.ingredients).forEach(([macroType, ingredients]) => {
     if (
       macroType in user.mealPreferences[timeSlot] &&
@@ -179,7 +183,6 @@ export const updateUserMealPreferences = async (userId: Types.ObjectId, meal: Me
         const macroPrefs = user.mealPreferences[timeSlot][macroType as keyof TimeSlotPreferences];
 
         if (macroPrefs) {
-          // Initialize ingredient preference if it doesn't exist
           if (!macroPrefs[ingredientId]) {
             macroPrefs[ingredientId] = {
               count: 0,
@@ -187,9 +190,13 @@ export const updateUserMealPreferences = async (userId: Types.ObjectId, meal: Me
             };
           }
 
-          // Update count and portion size based on final meal state
-          macroPrefs[ingredientId].count += 1;
-          macroPrefs[ingredientId].portionSize = portion.qty;
+          if (count !== 0) {
+            macroPrefs[ingredientId].count += count;
+          }
+
+          if (isPortion) {
+            macroPrefs[ingredientId].portionSize = portion.qty;
+          }
         }
       });
     }

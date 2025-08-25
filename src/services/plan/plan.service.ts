@@ -11,7 +11,7 @@ import {
   createPlanRef,
 } from './plan-helpers';
 
-import type { PlanReference } from 'chikrice-types';
+import type { PlanReference, PlanType } from 'chikrice-types';
 import type { CreatePlansDTO, GetMilestonePlansDTO } from '@/validations/plan.validation';
 
 // ============================================
@@ -75,6 +75,19 @@ export const createPlans = async (input: CreatePlansDTO): Promise<PlanReference[
   await roadmap.save();
 
   return planRefs;
+};
+
+// ============================================
+// UPDATE PLAN
+// ============================================
+export const updatePlan = async (planId: string, data: Partial<PlanType>): Promise<PlanType> => {
+  const plan = await Plan.findByIdAndUpdate(planId, { $set: data }, { new: true, runValidators: true });
+
+  if (!plan) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
+  }
+
+  return plan;
 };
 
 // ============================================

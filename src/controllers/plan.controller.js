@@ -84,6 +84,12 @@ const toggleSavePlan = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send();
 });
 
+const updatePlan = catchAsync(async (req, res) => {
+  const plan = await planService.updatePlan(req.params.planId, req.body);
+
+  res.status(httpStatus.OK).send(plan);
+});
+
 const getMealSuggestions = catchAsync(async (req, res) => {
   const data = pick(req.query, ['roadmapId', 'mealNumber']);
   const result = await planService.getMealSuggestions(req.params.planId, data);
@@ -93,13 +99,14 @@ const getMealSuggestions = catchAsync(async (req, res) => {
 
 module.exports = {
   getPlan,
-  copyMeals,
+  updatePlan,
   deletePlan,
   createPlans,
   toggleSavePlan,
   getMilestonePlans,
   //
   createMeal,
+  copyMeals,
   toggleMealMode,
   submitMealWithAi,
   updatePlanMeal,

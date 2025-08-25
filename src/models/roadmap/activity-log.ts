@@ -8,9 +8,21 @@ const activityLogSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    active: {
-      type: Boolean,
-      default: false,
+    consumedCalories: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    targetCalories: {
+      type: Number,
+      required: true,
+    },
+    completionPercentage: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 120,
+      default: 0,
     },
   },
   { _id: false },

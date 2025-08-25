@@ -45,6 +45,7 @@ router
   .route('/:planId')
   .get(auth(''), zodValidate(planValidation.getPlan), planController.getPlan)
   .post(auth(''), zodValidate(planValidation.toggleSavePlan), planController.toggleSavePlan)
+  .patch(auth(''), zodValidate(planValidation.updatePlan), planController.updatePlan)
   .delete(auth(''), zodValidate(planValidation.deletePlan), planController.deletePlan);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import type { Macros, MacrosRatio, Meal, MealsCount } from 'chikrice-types';
+import type { Macros, MacrosRatio, Meal, MealsCount, PlanType } from 'chikrice-types';
 
 // -------------------------------------
 

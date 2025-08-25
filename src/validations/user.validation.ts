@@ -118,6 +118,30 @@ export const updateUserAddress = {
 
 export type UpdateUserAddressDTO = z.infer<typeof updateUserAddress.body>;
 
+export const updateUserPreferences = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    meal: z
+      .object({
+        ingredients: z
+          .object({
+            carb: z.array(z.any()),
+            pro: z.array(z.any()),
+            fat: z.array(z.any()),
+            free: z.array(z.any()),
+          })
+          .optional(),
+      })
+      .passthrough(),
+    count: z.number().int().min(-1).max(1),
+    isPortion: z.boolean(),
+  }),
+};
+
+export type updateUserPreferencesDTO = z.infer<typeof updateUserPreferences.body>;
+
 export const deleteUserAddress = {
   params: z.object({
     addressId: zObjectId,

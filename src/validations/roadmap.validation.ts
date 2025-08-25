@@ -70,7 +70,8 @@ export const updateActivityLog = {
     roadmapId: zObjectId,
   }),
   body: z.object({
-    active: z.boolean(),
+    consumedCalories: z.number().min(0),
+    targetCalories: z.number().min(0),
     index: z.number().int().min(0),
   }),
 };

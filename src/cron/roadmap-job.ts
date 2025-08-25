@@ -23,6 +23,7 @@ const updateRoadmapProgress = async () => {
   const roadmaps = await Roadmap.find({});
 
   const now = new Date();
+  const today = formatISO(now).split('T')[0];
 
   const bulkOps = roadmaps.map((roadmap: RoadmapType) => {
     const { newOnGoingDay, newOnGoingMonth } = calcRoadmapOverview(roadmap.overview);
@@ -36,7 +37,12 @@ const updateRoadmapProgress = async () => {
             onGoingMonth: newOnGoingMonth,
           },
           $push: {
-            activityLog: { date: formatISO(now), active: false },
+            activityLog: {
+              date: today,
+              consumedCalories: 0,
+              targetCalories: roadmap.milestones[newOnGoingMonth - 1].targetCalories,
+              completionPercentage: 0,
+            },
           },
         },
       },

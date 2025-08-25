@@ -59,7 +59,9 @@ describe('Roadmap Integration Tests', () => {
     await insertRoadmaps([roadmapOne]);
 
     const data = {
-      active: true,
+      consumedCalories: 1850,
+      targetCalories: 2000,
+      completionPercentage: 92,
       index: 0,
     };
 
@@ -70,6 +72,8 @@ describe('Roadmap Integration Tests', () => {
       .expect(httpStatus.OK);
 
     const dbRoadmap = await Roadmap.findById(roadmapOne._id);
-    expect(dbRoadmap.activityLog[0].active).toBe(true);
+    expect(dbRoadmap.activityLog[0].consumedCalories).toBe(1850);
+    expect(dbRoadmap.activityLog[0].targetCalories).toBe(2000);
+    expect(dbRoadmap.activityLog[0].completionPercentage).toBe(92);
   });
 });

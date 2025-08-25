@@ -6,8 +6,8 @@ import { Roadmap, User } from '@/models';
 import { createRoadmapOverview } from './overview';
 import { createRoadmapMilestones } from './milestone';
 
-import type { CreateRoadmapDTO } from '@/validations/roadmap.validation';
 import type { PaginateOptions, QueryResult, RoadmapType } from 'chikrice-types';
+import type { CreateRoadmapDTO, UpdateActivityLogDTO } from '@/validations/roadmap.validation';
 
 // -------------------------------------
 
@@ -30,7 +30,14 @@ export const createRoadmap = async (input: CreateRoadmapDTO) => {
     userId,
     overview,
     milestones,
-    activityLog: [{ date: overview.startDate, active: false }],
+    activityLog: [
+      {
+        date: overview.startDate,
+        consumedCalories: 0,
+        targetCalories: milestones[0].targetCalories,
+        completionPercentage: 0,
+      },
+    ],
   };
 
   const roadmap = await Roadmap.create(data);
@@ -83,13 +90,21 @@ export const deleteRoadmapById = async (id: string): Promise<void> => {
 // ============================================
 // ROADMAP ACTIVITY LOG
 // ============================================
-export const updateActivityLog = async (id: string, data: { active: boolean; index: number }): Promise<void> => {
-  const { active, index } = data;
-
-  const result = await Roadmap.updateOne({ _id: id }, { $set: { [`activityLog.${index}.active`]: active } });
+export const updateActivityLog = async (roadmapId: string, data: UpdateActivityLogDTO): Promise<void> => {
+  const { index, consumedCalories, targetCalories } = data;
+  const completionPercentage = (consumedCalories / targetCalories) * 100;
+  const result = await Roadmap.updateOne(
+    { _id: roadmapId },
+    {
+      $set: {
+        [`activityLog.${index}.consumedCalories`]: consumedCalories,
+        [`activityLog.${index}.completionPercentage`]: completionPercentage,
+      },
+    },
+  );
 
   if (!result.n) {
-    throw new ApiError(httpStatus.NOT_FOUND, `Roadmap with id ${id} not found`);
+    throw new ApiError(httpStatus.NOT_FOUND, `Roadmap with id ${roadmapId} not found`);
   }
 
   if (!result.nModified) {
