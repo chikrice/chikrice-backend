@@ -8,9 +8,9 @@ const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
 const { oAuth2Client } = require('../config/googleAuth');
 
-const userService = require('./user.service');
 const tokenService = require('./token.service');
 const coachService = require('./coach.service');
+const userService = require('./user/user.service');
 
 /**
  * Login with username and password
@@ -94,7 +94,7 @@ const autoLoginWithAcessToken = async (accessToken) => {
 
     return await userService.getUserById(userId);
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token');
+    throw new ApiError(httpStatus.UNAUTHORIZED, `Invalid token ${error}`);
   }
 };
 
@@ -110,7 +110,7 @@ const logout = async (refreshToken) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
   }
 
-  return await refreshTokenDoc.remove();
+  return refreshTokenDoc.remove();
 };
 
 /**
@@ -128,7 +128,7 @@ const refreshAuth = async (refreshToken) => {
     await refreshTokenDoc.remove();
     return tokenService.generateAuthTokens(user);
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+    throw new ApiError(httpStatus.UNAUTHORIZED, `Please authenticate${error}`);
   }
 };
 
@@ -148,7 +148,7 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
     await userService.updateUserById(user.id, { password: newPassword });
     await Token.deleteMany({ user: user.id, type: tokenTypes.RESET_PASSWORD });
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
+    throw new ApiError(httpStatus.UNAUTHORIZED, `Password reset failed ${error}`);
   }
 };
 
@@ -167,7 +167,7 @@ const verifyEmail = async (verifyEmailToken) => {
     await Token.deleteMany({ user: user.id, type: tokenTypes.VERIFY_EMAIL });
     await userService.updateUserById(user.id, { isEmailVerified: true });
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
+    throw new ApiError(httpStatus.UNAUTHORIZED, `Email verification failed: ${error}`);
   }
 };
 

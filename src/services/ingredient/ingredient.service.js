@@ -134,6 +134,9 @@ const getIngredientsForUser = async (filters) => {
 
   const ingredients = await Ingredient.find(filter);
 
+  // Get user's custom ingredients
+  const userCustomIngredients = user.customIngredients || [];
+
   // Dynamically group ingredients by their macroType
   const groups = ingredients.reduce(
     (acc, ingredient) => {
@@ -144,8 +147,13 @@ const getIngredientsForUser = async (filters) => {
       acc[macroType].push(ingredient);
       return acc;
     },
-    { carb: [], pro: [], fat: [], free: [] },
+    { carb: [], pro: [], fat: [], free: [], custom: [] },
   );
+
+  // Add user's custom ingredients to the custom group
+  if (userCustomIngredients.length > 0) {
+    groups.custom = [...groups.custom, ...userCustomIngredients];
+  }
 
   // Get the user meal preferences
   const { mealPreferences } = user;
@@ -167,6 +175,7 @@ const getIngredientsForUser = async (filters) => {
   groups.pro = sortByPreferences(groups.pro, 'pro');
   groups.fat = sortByPreferences(groups.fat, 'fat');
   groups.free = sortByPreferences(groups.free, 'free');
+  groups.custom = sortByPreferences(groups.custom, 'custom');
 
   // Return the result array in the desired order: carb, pro, fat
   const result = [
@@ -174,10 +183,20 @@ const getIngredientsForUser = async (filters) => {
     { title: 'pro', ingredients: groups.pro },
     { title: 'fat', ingredients: groups.fat },
     { title: 'allowed', ingredients: groups.free },
+    { title: 'custom', ingredients: groups.custom },
   ];
 
   if (query) {
-    return { result: ingredients, resultType: 'query' };
+    // For search queries, also include custom ingredients that match the query
+    const matchingCustomIngredients = userCustomIngredients.filter(
+      (ingredient) =>
+        ingredient.name.en.toLowerCase().includes(query.toLowerCase()) ||
+        ingredient.name.ar.includes(query) ||
+        ingredient.name.fa.includes(query),
+    );
+
+    const allMatchingIngredients = [...ingredients, ...matchingCustomIngredients];
+    return { result: allMatchingIngredients, resultType: 'query' };
   }
   return { result, resultType: 'group' };
 };

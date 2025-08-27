@@ -6,8 +6,16 @@ import { roleModelMap } from '@/models/user';
 import getCurrentTimeSlot from '@/utils/get-time-slot';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
+import { createUserCustomIngredient } from './helpers';
+
 import type { UserBaseDoc } from '@/models/user/user-base';
-import type { MealIngredient, PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
+import type {
+  MealIngredient,
+  PaginateOptions,
+  QueryResult,
+  TimeSlotPreferences,
+  UserIngredientType,
+} from 'chikrice-types';
 import type {
   CreateUserDTO,
   UpdateUserDTO,
@@ -15,6 +23,8 @@ import type {
   UpdateUserAddressDTO,
   InitCoachCollabDTO,
   updateUserPreferencesDTO,
+  AddUserCustomIngredientDTO,
+  UpdateUserCustomIngredientDTO,
 } from '@/validations/user.validation';
 
 // -------------------------------------
@@ -235,5 +245,67 @@ export const initCoachCollab = async (userId: Types.ObjectId, body: InitCoachCol
   };
 
   user.currentCoach = coachData;
+  await user.save();
+};
+
+// ============================================
+// USER CUSTOM INGREDIENTS
+// ============================================
+export const getUserCustomIngredients = async (userId: Types.ObjectId): Promise<UserIngredientType[]> => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  return user.customIngredients;
+};
+
+export const addUserCustomIngredient = async (
+  userId: Types.ObjectId,
+  ingredientData: AddUserCustomIngredientDTO,
+): Promise<UserIngredientType> => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredient = await createUserCustomIngredient(ingredientData);
+  user.customIngredients.push(ingredient);
+  await user.save();
+
+  return ingredient;
+};
+
+export const updateUserCustomIngredient = async (userId: Types.ObjectId, updateData: UpdateUserCustomIngredientDTO) => {
+  const { ingredientId, ...updateFields } = updateData;
+
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredientIndex = user.customIngredients.findIndex(
+    (ingredient) => ingredient._id?.toString() === ingredientId.toString(),
+  );
+
+  if (ingredientIndex === -1) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Custom ingredient not found');
+  }
+
+  // Update the ingredient with new data
+  Object.assign(user.customIngredients[ingredientIndex], updateFields);
+
+  await user.save();
+  return user.customIngredients[ingredientIndex];
+};
+
+export const deleteUserCustomIngredient = async (userId: Types.ObjectId, ingredientId: Types.ObjectId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredientIndex = user.customIngredients.findIndex(
+    (ingredient) => ingredient._id?.toString() === ingredientId.toString(),
+  );
+
+  if (ingredientIndex === -1) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Custom ingredient not found');
+  }
+
+  // Remove the ingredient from the array
+  user.customIngredients.splice(ingredientIndex, 1);
   await user.save();
 };

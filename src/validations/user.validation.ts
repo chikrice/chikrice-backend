@@ -161,3 +161,87 @@ export const initCoachCollab = {
 };
 
 export type InitCoachCollabDTO = z.infer<typeof initCoachCollab.body>;
+
+// User Custom Ingredients Validations
+export const getUserCustomIngredients = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+};
+
+export const addUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    name: z.string(),
+    serving: z.object({
+      weightInGrams: z.number().positive(),
+      nutrientFacts: z.object({
+        cal: z.number().nonnegative(),
+        pro: z.number().nonnegative().optional(),
+        carb: z.number().nonnegative().optional(),
+        fat: z.number().nonnegative().optional(),
+      }),
+    }),
+  }),
+};
+
+export type AddUserCustomIngredientDTO = z.infer<typeof addUserCustomIngredient.body>;
+
+export const updateUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z
+    .object({
+      ingredientId: zObjectId,
+      name: z
+        .object({
+          en: z.string().trim().min(1),
+          ar: z.string().trim().min(1),
+          fa: z.string().trim().min(1),
+        })
+        .optional(),
+      icon: z.string().optional(),
+      macroType: z.enum(['carb', 'fat', 'pro', 'free']).optional(),
+      serving: z
+        .object({
+          weightInGrams: z.number().positive(),
+          breakpoint: z.number().positive(),
+          singleLabel: z.object({
+            en: z.string().trim(),
+            ar: z.string().trim(),
+            fa: z.string().trim(),
+          }),
+          multipleLabel: z.object({
+            en: z.string().trim(),
+            ar: z.string().trim(),
+            fa: z.string().trim(),
+          }),
+          nutrientFacts: z.object({
+            cal: z.number().nonnegative(),
+            pro: z.number().nonnegative(),
+            carb: z.number().nonnegative(),
+            fat: z.number().nonnegative(),
+          }),
+        })
+        .optional(),
+    })
+    .refine((data) => Object.keys(data).length > 1, {
+      message: 'At least one field to update must be provided (besides ingredientId)',
+    }),
+};
+
+export type UpdateUserCustomIngredientDTO = z.infer<typeof updateUserCustomIngredient.body>;
+
+export const deleteUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  query: z.object({
+    ingredientId: zObjectId,
+  }),
+};
+
+export type DeleteUserCustomIngredientDTO = z.infer<typeof deleteUserCustomIngredient.query>;

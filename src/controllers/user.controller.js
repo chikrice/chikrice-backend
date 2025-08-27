@@ -55,6 +55,26 @@ const deleteUserAddress = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getUserCustomIngredients = catchAsync(async (req, res) => {
+  const customIngredients = await userService.getUserCustomIngredients(req.params.userId);
+  res.status(httpStatus.OK).json(customIngredients);
+});
+
+const addUserCustomIngredient = catchAsync(async (req, res) => {
+  const newIngredient = await userService.addUserCustomIngredient(req.params.userId, req.body);
+  res.status(httpStatus.CREATED).json(newIngredient);
+});
+
+const updateUserCustomIngredient = catchAsync(async (req, res) => {
+  const user = await userService.updateUserCustomIngredient(req.params.userId, req.body);
+  res.status(httpStatus.OK).json(user.customIngredients);
+});
+
+const deleteUserCustomIngredient = catchAsync(async (req, res) => {
+  await userService.deleteUserCustomIngredient(req.params.userId, req.query.ingredientId);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 const initCoachCollab = catchAsync(async (req, res) => {
   await userService.initCoachCollab(req.params.userId, req.body);
   res.status(httpStatus.NO_CONTENT).send();
@@ -70,5 +90,9 @@ module.exports = {
   createUserAddress,
   updateUserAddress,
   updateUserPreferences,
+  getUserCustomIngredients,
+  addUserCustomIngredient,
+  updateUserCustomIngredient,
+  deleteUserCustomIngredient,
   deleteUserAddress,
 };

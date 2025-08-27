@@ -30,7 +30,7 @@ const ingredientSchema = new mongoose.Schema(
     },
     macroType: {
       type: String,
-      enum: ['carb', 'fat', 'pro', 'free'],
+      enum: ['carb', 'fat', 'pro', 'free', 'custom'],
       required: true,
     },
     mealType: {
@@ -51,6 +51,7 @@ const ingredientSchema = new mongoose.Schema(
         'vegetables',
         'sauces',
         'beverages',
+        'custom',
       ],
       required: true,
     },

@@ -34,6 +34,13 @@ router
   .patch(auth(''), zodValidate(userValidation.updateUserPreferences), userController.updateUserPreferences);
 
 router
+  .route('/custom-ingredients/:userId')
+  .get(auth(''), zodValidate(userValidation.getUserCustomIngredients), userController.getUserCustomIngredients)
+  .post(auth(''), zodValidate(userValidation.addUserCustomIngredient), userController.addUserCustomIngredient)
+  .patch(auth(''), zodValidate(userValidation.updateUserCustomIngredient), userController.updateUserCustomIngredient)
+  .delete(auth(''), zodValidate(userValidation.deleteUserCustomIngredient), userController.deleteUserCustomIngredient);
+
+router
   .route('/init-coach-collab/:userId')
   .post(auth(''), zodValidate(userValidation.initCoachCollab), userController.initCoachCollab);
 

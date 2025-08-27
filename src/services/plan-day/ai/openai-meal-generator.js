@@ -1,8 +1,8 @@
-const OpenAI = require('openai');
+// const OpenAI = require('openai');
 
-const config = require('@/config/config');
+// const config = require('@/config/config');
 
-const openai = new OpenAI({ apiKey: config.openai });
+// const openai = new OpenAI({ apiKey: config.openai });
 
 async function openaiMealGenerator() {
   // try {
