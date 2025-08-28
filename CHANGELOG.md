@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/chikrice/chikrice-backend/compare/v1.2.0...v1.3.0) (2025-08-28)
+
+
+### Features
+
+* add ai ingredient processing feature ([5be86cd](https://github.com/chikrice/chikrice-backend/commit/5be86cda9117bd78b73a2425bf6a93c236f52669))
+* **ingredient:** implement user custom ingredients with ai assistance ([9304dc5](https://github.com/chikrice/chikrice-backend/commit/9304dc5781788d54e25659502159de7951aa1c55))
+
+
+### Bug Fixes
+
+* resolved user ingredient update bug & improved the ingredient search function ([0fad3f3](https://github.com/chikrice/chikrice-backend/commit/0fad3f358119a084d6f08f4c836af4f8545a3777))
+
 ## [1.2.0](https://github.com/chikrice/chikrice-backend/compare/v1.1.0...v1.2.0) (2025-08-25)
 
 
