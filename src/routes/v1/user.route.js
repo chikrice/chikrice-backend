@@ -44,6 +44,10 @@ router
   .route('/init-coach-collab/:userId')
   .post(auth(''), zodValidate(userValidation.initCoachCollab), userController.initCoachCollab);
 
+router
+  .route('/process-ingredient-prompt/:userId')
+  .post(auth(''), zodValidate(userValidation.processIngredientPrompt), userController.processUserIngredientPrompt);
+
 module.exports = router;
 
 /**

@@ -80,6 +80,11 @@ const initCoachCollab = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const processUserIngredientPrompt = catchAsync(async (req, res) => {
+  const ingredients = await userService.processUserIngredientPrompt(req.params.userId, req.body);
+  res.status(httpStatus.CREATED).json(ingredients);
+});
+
 module.exports = {
   getUser,
   createUser,
@@ -95,4 +100,5 @@ module.exports = {
   updateUserCustomIngredient,
   deleteUserCustomIngredient,
   deleteUserAddress,
+  processUserIngredientPrompt,
 };

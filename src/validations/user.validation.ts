@@ -233,3 +233,14 @@ export const deleteUserCustomIngredient = {
 };
 
 export type DeleteUserCustomIngredientDTO = z.infer<typeof deleteUserCustomIngredient.query>;
+
+export const processIngredientPrompt = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    prompt: z.string().min(1, 'Prompt cannot be empty'),
+  }),
+};
+
+export type ProcessIngredientPromptDTO = z.infer<typeof processIngredientPrompt.body>;

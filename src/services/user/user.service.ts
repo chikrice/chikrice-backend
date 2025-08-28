@@ -6,7 +6,7 @@ import { roleModelMap } from '@/models/user';
 import getCurrentTimeSlot from '@/utils/get-time-slot';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
-import { createUserCustomIngredient } from './helpers';
+import { createUserCustomIngredient, processIngredientPrompt } from './helpers';
 
 import type { UserBaseDoc } from '@/models/user/user-base';
 import type {
@@ -25,6 +25,7 @@ import type {
   updateUserPreferencesDTO,
   AddUserCustomIngredientDTO,
   UpdateUserCustomIngredientDTO,
+  ProcessIngredientPromptDTO,
 } from '@/validations/user.validation';
 
 // -------------------------------------
@@ -318,4 +319,42 @@ export const deleteUserCustomIngredient = async (userId: Types.ObjectId, ingredi
   // Remove the ingredient from the array
   user.customIngredients.splice(ingredientIndex, 1);
   await user.save();
+};
+
+// ============================================
+// INGREDIENT PROMPT PROCESSING
+// ============================================
+export const processUserIngredientPrompt = async (
+  userId: Types.ObjectId,
+  data: ProcessIngredientPromptDTO,
+): Promise<Array<UserIngredientType>> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const aiResponse = await processIngredientPrompt(data.prompt);
+
+  const ingredients: Array<UserIngredientType> = aiResponse.ingredients.map((ingredient) => ({
+    name: ingredient.name,
+    icon: ingredient.icon,
+    macroType: 'custom' as const,
+    serving: {
+      weightInGrams: ingredient.weightInGrams,
+      breakpoint: 0.5,
+      singleLabel: ingredient.singleLabel,
+      multipleLabel: ingredient.multipleLabel,
+      nutrientFacts: ingredient.nutrientFacts,
+    },
+  }));
+
+  if (!user.customIngredients) {
+    user.customIngredients = [];
+  }
+
+  user.customIngredients.push(...ingredients);
+
+  await user.save();
+
+  return user.customIngredients.slice(-ingredients.length);
 };

@@ -8,6 +8,101 @@ import config from '@/config/config';
 import type { UserIngredientType } from 'chikrice-types';
 import type { AddUserCustomIngredientDTO } from '@/validations/user.validation';
 
+const openai = new OpenAI({ apiKey: config.openai });
+
+const ingredientPromptFormat = z.object({
+  ingredients: z.array(
+    z.object({
+      name: z.object({
+        en: z.string(),
+        ar: z.string(),
+        fa: z.string(),
+      }),
+      icon: z.string(),
+      singleLabel: z.object({
+        en: z.string(),
+        ar: z.string(),
+        fa: z.string(),
+      }),
+      multipleLabel: z.object({
+        en: z.string(),
+        ar: z.string(),
+        fa: z.string(),
+      }),
+      weightInGrams: z.number().positive(),
+      nutrientFacts: z.object({
+        cal: z.number().nonnegative(),
+        pro: z.number().nonnegative(),
+        carb: z.number().nonnegative(),
+        fat: z.number().nonnegative(),
+      }),
+    }),
+  ),
+});
+
+export const processIngredientPrompt = async (prompt: string): Promise<z.infer<typeof ingredientPromptFormat>> => {
+  const systemPrompt = `You are a food ingredient assistant that processes natural language food descriptions and converts them into structured ingredient data.
+
+Your task is to:
+1. Parse the input prompt which contains food items with quantities (e.g., "1 mac chicken, 1 Cola,  2.5 خبز رقاق")
+2. Extract quantity, unit (if any), and food name for each item
+3. Generate complete ingredient data including:
+   - Name translations in English, Arabic, and Farsi
+   - Appropriate food emoji icon
+   - Single and multiple serving labels in all three languages
+   - Accurate weightInGrams based on the food item and quantity mentioned
+   - Complete nutrientFacts (calories, protein, carbs, fat) estimated based on the food type and portion size
+
+RULES:
+- Parse quantities correctly (numbers, decimals, fractions)
+- Identify units when present (piece, cup, gram, etc.)
+- Translate food names accurately between languages
+- Choose appropriate serving labels (piece, slice, cup, gram, etc.)
+- Calculate accurate weightInGrams based on the food item and quantity
+- Estimate complete nutrientFacts based on food type and portion size
+- Use relevant food emoji for each ingredient
+- Handle mixed language inputs (Arabic, English, Farsi)
+- Ensure all text fields are non-empty strings
+- Return exactly the number of ingredients found in the prompt
+
+Example input: "1 mac chicken, 1 Cola,  2.5 خبز رقاق"
+Example output: Array of 3 ingredients with complete data including accurate weightInGrams and nutrientFacts`;
+
+  const userPrompt = `Process the following food prompt and extract all ingredients:
+
+${prompt}
+
+Please provide the structured data for each ingredient found in the prompt, including accurate weightInGrams and complete nutrientFacts based on the food type and quantity mentioned.`;
+
+  try {
+    const completion = await openai.beta.chat.completions.parse({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
+        {
+          role: 'user',
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(ingredientPromptFormat, 'data'),
+    });
+
+    const { parsed } = completion.choices[0].message;
+    if (!parsed) {
+      throw new Error('AI response is null or invalid');
+    }
+    return parsed;
+  } catch (error) {
+    throw new Error(`Failed to process ingredient prompt with AI: ${error}`);
+  }
+};
+
+// ============================================
+// CREATE CUSTOM INGREIDENT
+// ============================================
 const aiResponseFormat = z.object({
   name: z.object({
     en: z.string(),
@@ -31,8 +126,6 @@ const aiResponseFormat = z.object({
     fat: z.number().optional(),
   }),
 });
-
-const openai = new OpenAI({ apiKey: config.openai });
 
 const generateAIIngredientData = async (
   name: { en?: string; ar?: string; fa?: string },

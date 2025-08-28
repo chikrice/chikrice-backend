@@ -62,11 +62,10 @@ describe('Roadmap Overview Helpers', () => {
         targetWeight: 73,
       };
 
-      const progression = calculateWeightProgression(smallChangeInput, 2, [0.5, 1]);
+      const progression = calculateWeightProgression(smallChangeInput, 2, false, [0.5, 1]);
 
       expect(progression).toEqual([
-        { month: 0, startWeight: 75, targetWeight: 75, weightChange: 0, changePoint: null },
-        { month: 1, startWeight: 75, targetWeight: 73, weightChange: 2, changePoint: null },
+        { month: 1, startWeight: 75, targetWeight: 73, weightChange: -2, changePoint: null },
       ]);
     });
 
@@ -75,20 +74,20 @@ describe('Roadmap Overview Helpers', () => {
 
       const progression = calculateWeightProgression(mockInput, 10, false, ratios);
 
-      expect(progression).toHaveLength(4); // 0, 1, 2, 3 months
+      expect(progression).toHaveLength(3); // 1, 2, 3 months (no redundant index 0)
       expect(progression[0]).toEqual({
-        month: 0,
+        month: 1,
         startWeight: 80,
-        targetWeight: 80,
+        targetWeight: 75.7,
         changePoint: null,
-        weightChange: 0,
+        weightChange: -4.3,
       });
 
       // Check that weight decreases over time
-      expect(progression[1].startWeight).toBe(80);
-      expect(progression[1].targetWeight).toBe(75.7);
-      expect(progression[1].weightChange).toBe(-4.3);
-      expect(progression[3].targetWeight).toBe(70, 1);
+      expect(progression[1].startWeight).toBe(75.7);
+      expect(progression[1].targetWeight).toBe(72.3);
+      expect(progression[1].weightChange).toBe(-3.4);
+      expect(progression[2].targetWeight).toBe(70, 1);
     });
 
     it('should calculate weight gain progression correctly', () => {
@@ -101,30 +100,30 @@ describe('Roadmap Overview Helpers', () => {
       const ratios = generateWeightProgressRatios(3);
       const progression = calculateWeightProgression(gainInput, 10, true, ratios);
 
-      expect(progression).toHaveLength(4);
+      expect(progression).toHaveLength(3);
       expect(progression[0]).toEqual({
-        month: 0,
+        month: 1,
         startWeight: 70,
-        targetWeight: 70,
-        weightChange: 0,
+        targetWeight: 74.3,
+        weightChange: 4.3,
         changePoint: null,
       });
 
       // Check that weight increases over time
-      expect(progression[1].startWeight).toBe(70);
-      expect(progression[1].targetWeight).toBe(74.3);
-      expect(progression[1].weightChange).toBe(4.3);
+      expect(progression[1].startWeight).toBe(74.3);
+      expect(progression[1].targetWeight).toBe(77.7);
+      expect(progression[1].weightChange).toBe(3.4);
 
-      expect(progression[3].startWeight).toBe(77.7);
-      expect(progression[3].targetWeight).toBe(80);
-      expect(progression[3].weightChange).toBe(2.3);
+      expect(progression[2].startWeight).toBe(77.7);
+      expect(progression[2].targetWeight).toBe(80);
+      expect(progression[2].weightChange).toBe(2.3);
     });
 
     it('should handle 6-month progression correctly', () => {
       const ratios = generateWeightProgressRatios(6);
       const progression = calculateWeightProgression(mockInput, 10, false, ratios);
 
-      expect(progression).toHaveLength(7); // 0 through 6 months
+      expect(progression).toHaveLength(6); // 1 through 6 months
 
       // Verify progression is smooth
       for (let i = 1; i < progression.length; i++) {
@@ -148,12 +147,9 @@ describe('Roadmap Overview Helpers', () => {
       const ratios = [0.3, 0.7, 1.0];
       const progression = calculateWeightProgression(mockInput, 10, true, ratios);
 
-      // First month: 0 weight change
-      expect(progression[0].weightChange).toBe(0);
-
-      // Subsequent months should have calculated weight changes
-      for (let i = 1; i < progression.length; i++) {
-        const expectedChange = progression[i].targetWeight - progression[i - 1].targetWeight;
+      // All months should have calculated weight changes
+      for (let i = 0; i < progression.length; i++) {
+        const expectedChange = progression[i].targetWeight - progression[i].startWeight;
         expect(progression[i].weightChange).toBeCloseTo(expectedChange, 2);
       }
     });
@@ -184,9 +180,9 @@ describe('Roadmap Overview Helpers', () => {
       //   );
       // });
 
-      expect(progression).toHaveLength(4);
-      expect(progression[0].targetWeight).toBe(75);
-      expect(progression[3].targetWeight).toBe(65);
+      expect(progression).toHaveLength(3);
+      expect(progression[0].startWeight).toBe(75);
+      expect(progression[2].targetWeight).toBe(65);
     });
 
     it('should produce realistic weight progression for 6-month weight gain', () => {
@@ -213,9 +209,9 @@ describe('Roadmap Overview Helpers', () => {
       //   );
       // });
 
-      expect(progression).toHaveLength(7);
-      expect(progression[0].targetWeight).toBe(70);
-      expect(progression[6].targetWeight).toBe(80);
+      expect(progression).toHaveLength(6);
+      expect(progression[0].startWeight).toBe(70);
+      expect(progression[5].targetWeight).toBe(80);
     });
 
     it('should produce realistic weight progression for 6-month weight lose', () => {
@@ -242,9 +238,9 @@ describe('Roadmap Overview Helpers', () => {
       //   );
       // });
 
-      expect(progression).toHaveLength(7);
-      expect(progression[0].targetWeight).toBe(80);
-      expect(progression[6].targetWeight).toBe(68);
+      expect(progression).toHaveLength(6);
+      expect(progression[0].startWeight).toBe(80);
+      expect(progression[5].targetWeight).toBe(68);
     });
   });
 });
