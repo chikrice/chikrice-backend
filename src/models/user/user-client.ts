@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 import User from './user-base';
 import addressSchema from './address-schema';
+import userIngredientSchema from './user-ingredient-schema';
 
 import type { Document, Model } from 'mongoose';
 import type { UserClient } from 'chikrice-types';
@@ -83,6 +84,10 @@ const userSchema = new mongoose.Schema({
   currentCoach: {
     type: Object,
     default: null,
+  },
+  customIngredients: {
+    type: [userIngredientSchema],
+    default: [],
   },
 });
 

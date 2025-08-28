@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 
-const userService = require('../user.service');
 const ApiError = require('../../utils/ApiError');
 const { PlanDay, User } = require('../../models');
+const userService = require('../user/user.service');
 const getCurrentTimeSlot = require('../../utils/get-time-slot');
 
 const getMealMacroWithAi = require('./ai/get-meal-macro-with-ai');

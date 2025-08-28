@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import ApiError from '@/utils/ApiError';
 import { Plan, Ingredient } from '@/models';
 
-import { updateUserPreferences } from '../user.service';
+import { updateUserPreferences } from '../user/user.service';
 
 import { recalcPlanConsumedMacros } from './plan-helpers';
 import {
@@ -39,7 +39,7 @@ export const createMeal = async (planId: string): Promise<void> => {
   const newMeal = {
     number,
     recommendedMacros,
-    ingredients: { carb: [], pro: [], fat: [], free: [] },
+    ingredients: { carb: [], pro: [], fat: [], free: [], custom: [] },
   };
 
   plan.meals.push(newMeal);

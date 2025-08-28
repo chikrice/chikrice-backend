@@ -6,8 +6,16 @@ import { roleModelMap } from '@/models/user';
 import getCurrentTimeSlot from '@/utils/get-time-slot';
 import { User, Coach, BaseUser, Admin } from '@/models';
 
+import { createUserCustomIngredient, processIngredientPrompt } from './helpers';
+
 import type { UserBaseDoc } from '@/models/user/user-base';
-import type { MealIngredient, PaginateOptions, QueryResult, TimeSlotPreferences } from 'chikrice-types';
+import type {
+  MealIngredient,
+  PaginateOptions,
+  QueryResult,
+  TimeSlotPreferences,
+  UserIngredientType,
+} from 'chikrice-types';
 import type {
   CreateUserDTO,
   UpdateUserDTO,
@@ -15,6 +23,9 @@ import type {
   UpdateUserAddressDTO,
   InitCoachCollabDTO,
   updateUserPreferencesDTO,
+  AddUserCustomIngredientDTO,
+  UpdateUserCustomIngredientDTO,
+  ProcessIngredientPromptDTO,
 } from '@/validations/user.validation';
 
 // -------------------------------------
@@ -168,7 +179,7 @@ export const updateUserPreferences = async (userId: Types.ObjectId, data: update
   }
 
   if (!user.mealPreferences[timeSlot]) {
-    user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {} };
+    user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {}, custom: {} };
   }
 
   if (!meal.ingredients) return;
@@ -236,4 +247,114 @@ export const initCoachCollab = async (userId: Types.ObjectId, body: InitCoachCol
 
   user.currentCoach = coachData;
   await user.save();
+};
+
+// ============================================
+// USER CUSTOM INGREDIENTS
+// ============================================
+export const getUserCustomIngredients = async (userId: Types.ObjectId): Promise<UserIngredientType[]> => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  return user.customIngredients;
+};
+
+export const addUserCustomIngredient = async (
+  userId: Types.ObjectId,
+  ingredientData: AddUserCustomIngredientDTO,
+): Promise<UserIngredientType> => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredient = await createUserCustomIngredient(ingredientData);
+  user.customIngredients.push(ingredient);
+  await user.save();
+
+  return user.customIngredients[user.customIngredients.length - 1];
+};
+
+export const updateUserCustomIngredient = async (userId: Types.ObjectId, updateData: UpdateUserCustomIngredientDTO) => {
+  const { id: ingredientId, name, serving } = updateData;
+
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredientIndex = user.customIngredients.findIndex(
+    (ingredient) => ingredient._id?.toString() === ingredientId.toString(),
+  );
+
+  if (ingredientIndex === -1) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Custom ingredient not found');
+  }
+
+  if (name) {
+    user.customIngredients[ingredientIndex].name = name;
+  }
+
+  if (serving) {
+    if (serving.weightInGrams !== undefined) {
+      user.customIngredients[ingredientIndex].serving.weightInGrams = serving.weightInGrams;
+    }
+    if (serving.nutrientFacts) {
+      user.customIngredients[ingredientIndex].serving.nutrientFacts = serving.nutrientFacts;
+    }
+  }
+
+  await user.save();
+  return user.customIngredients[ingredientIndex];
+};
+
+export const deleteUserCustomIngredient = async (userId: Types.ObjectId, ingredientId: Types.ObjectId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  const ingredientIndex = user.customIngredients.findIndex(
+    (ingredient) => ingredient._id?.toString() === ingredientId.toString(),
+  );
+
+  if (ingredientIndex === -1) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Custom ingredient not found');
+  }
+
+  // Remove the ingredient from the array
+  user.customIngredients.splice(ingredientIndex, 1);
+  await user.save();
+};
+
+// ============================================
+// INGREDIENT PROMPT PROCESSING
+// ============================================
+export const processUserIngredientPrompt = async (
+  userId: Types.ObjectId,
+  data: ProcessIngredientPromptDTO,
+): Promise<Array<UserIngredientType>> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const aiResponse = await processIngredientPrompt(data.prompt);
+
+  const ingredients: Array<UserIngredientType> = aiResponse.ingredients.map((ingredient) => ({
+    name: ingredient.name,
+    icon: ingredient.icon,
+    macroType: 'custom' as const,
+    serving: {
+      weightInGrams: ingredient.weightInGrams,
+      breakpoint: 0.5,
+      singleLabel: ingredient.singleLabel,
+      multipleLabel: ingredient.multipleLabel,
+      nutrientFacts: ingredient.nutrientFacts,
+    },
+  }));
+
+  if (!user.customIngredients) {
+    user.customIngredients = [];
+  }
+
+  user.customIngredients.push(...ingredients);
+
+  await user.save();
+
+  return user.customIngredients.slice(-ingredients.length);
 };

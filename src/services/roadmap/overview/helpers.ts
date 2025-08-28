@@ -12,6 +12,14 @@ const CALORIE_INCREMENT = 100;
 
 // -------------------------------------
 
+type WeightProgression = {
+  month: number;
+  startWeight: number;
+  targetWeight: number;
+  weightChange: number;
+  changePoint: null;
+};
+
 // ============================================
 // CALCULATE WEIGHT CHANGE
 // ============================================
@@ -98,28 +106,29 @@ export const calculateWeightProgression = (
   weightChange: number,
   isGainWeight: boolean,
   ratios: number[],
-) => {
+): WeightProgression[] => {
   const { startWeight, targetWeight } = input;
 
   if (weightChange <= 2) {
-    return [
-      { month: 0, startWeight, targetWeight: startWeight, weightChange: 0, changePoint: null },
-      { month: 1, startWeight, targetWeight, weightChange, changePoint: null },
-    ];
+    const diff = roundToDecimal(targetWeight - startWeight);
+    return [{ month: 1, startWeight, targetWeight, weightChange: diff, changePoint: null }];
   }
 
   const multiplyFactor = isGainWeight ? 1 : -1;
-  const progression = [{ month: 0, startWeight, targetWeight: startWeight, weightChange: 0, changePoint: null }];
+  const progression: WeightProgression[] = [];
 
   ratios.forEach((ratio, index) => {
     const monthWeightChange = weightChange * ratio;
     const currentWeight = startWeight + multiplyFactor * monthWeightChange;
     const target = roundToDecimal(currentWeight);
-    const diff = roundToDecimal(currentWeight - progression[index].targetWeight);
+
+    // For the first month, use startWeight as the starting point
+    const previousTargetWeight = index === 0 ? startWeight : progression[index - 1].targetWeight;
+    const diff = roundToDecimal(target - previousTargetWeight);
 
     progression.push({
       month: index + 1,
-      startWeight: progression[index].targetWeight,
+      startWeight: previousTargetWeight,
       targetWeight: target,
       weightChange: diff,
       changePoint: null,

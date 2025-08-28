@@ -131,6 +131,7 @@ export const updateUserPreferences = {
             pro: z.array(z.any()),
             fat: z.array(z.any()),
             free: z.array(z.any()),
+            custom: z.array(z.any()),
           })
           .optional(),
       })
@@ -161,3 +162,85 @@ export const initCoachCollab = {
 };
 
 export type InitCoachCollabDTO = z.infer<typeof initCoachCollab.body>;
+
+// User Custom Ingredients Validations
+export const getUserCustomIngredients = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+};
+
+export const addUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    name: z
+      .object({
+        en: z.string().optional(),
+        ar: z.string().optional(),
+        fa: z.string().optional(),
+      })
+      .refine((name) => name.en || name.ar || name.fa, {
+        message: 'At least one language name is required',
+      }),
+    serving: z.object({
+      weightInGrams: z.number().positive(),
+      nutrientFacts: z.object({
+        cal: z.number().nonnegative(),
+        pro: z.number().nonnegative().optional(),
+        carb: z.number().nonnegative().optional(),
+        fat: z.number().nonnegative().optional(),
+      }),
+    }),
+  }),
+};
+
+export type AddUserCustomIngredientDTO = z.infer<typeof addUserCustomIngredient.body>;
+
+export const updateUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    id: zObjectId,
+    name: z.object({
+      en: z.string(),
+      ar: z.string(),
+      fa: z.string(),
+    }),
+    serving: z.object({
+      weightInGrams: z.number().positive(),
+      nutrientFacts: z.object({
+        cal: z.number().nonnegative(),
+        pro: z.number().nonnegative(),
+        carb: z.number().nonnegative(),
+        fat: z.number().nonnegative(),
+      }),
+    }),
+  }),
+};
+
+export type UpdateUserCustomIngredientDTO = z.infer<typeof updateUserCustomIngredient.body>;
+
+export const deleteUserCustomIngredient = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  query: z.object({
+    ingredientId: zObjectId,
+  }),
+};
+
+export type DeleteUserCustomIngredientDTO = z.infer<typeof deleteUserCustomIngredient.query>;
+
+export const processIngredientPrompt = {
+  params: z.object({
+    userId: zObjectId,
+  }),
+  body: z.object({
+    prompt: z.string().min(1, 'Prompt cannot be empty'),
+  }),
+};
+
+export type ProcessIngredientPromptDTO = z.infer<typeof processIngredientPrompt.body>;

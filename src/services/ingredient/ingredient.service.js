@@ -125,14 +125,77 @@ const getIngredientsForUser = async (filters) => {
   const filter = {};
 
   if (query) {
-    filter.$or = [
-      { 'name.en': { $regex: query, $options: 'i' } },
-      { 'name.ar': { $regex: query, $options: 'i' } },
-      { 'name.fa': { $regex: query, $options: 'i' } },
-    ];
+    // Create a more flexible search pattern
+    const searchTerms = query.trim().toLowerCase().split(/\s+/);
+
+    // Build regex patterns for each search term
+    const searchPatterns = searchTerms.map((term) => {
+      // Handle common plural forms and variations
+      const singularTerm = term.replace(/s$/, ''); // Remove trailing 's'
+      const pluralTerm = term.endsWith('s') ? term : `${term}s`;
+
+      // Create a pattern that matches the term as a whole word or part of a word
+      return {
+        $or: [
+          // Exact match (case insensitive)
+          { 'name.en': { $regex: `^${term}$`, $options: 'i' } },
+          { 'name.ar': { $regex: `^${term}$`, $options: 'i' } },
+          { 'name.fa': { $regex: `^${term}$`, $options: 'i' } },
+
+          // Word boundary match (case insensitive)
+          { 'name.en': { $regex: `\\b${term}\\b`, $options: 'i' } },
+          { 'name.ar': { $regex: `\\b${term}\\b`, $options: 'i' } },
+          { 'name.fa': { $regex: `\\b${term}\\b`, $options: 'i' } },
+
+          // Contains match (case insensitive)
+          { 'name.en': { $regex: term, $options: 'i' } },
+          { 'name.ar': { $regex: term, $options: 'i' } },
+          { 'name.fa': { $regex: term, $options: 'i' } },
+
+          // Handle singular/plural variations
+          ...(term !== singularTerm
+            ? [
+                { 'name.en': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.ar': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.fa': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.en': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.ar': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.fa': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.en': { $regex: singularTerm, $options: 'i' } },
+                { 'name.ar': { $regex: singularTerm, $options: 'i' } },
+                { 'name.fa': { $regex: singularTerm, $options: 'i' } },
+              ]
+            : []),
+
+          ...(term !== pluralTerm
+            ? [
+                { 'name.en': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.ar': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.fa': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.en': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.ar': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.fa': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.en': { $regex: pluralTerm, $options: 'i' } },
+                { 'name.ar': { $regex: pluralTerm, $options: 'i' } },
+                { 'name.fa': { $regex: pluralTerm, $options: 'i' } },
+              ]
+            : []),
+        ],
+      };
+    });
+
+    // If multiple search terms, use $and to require all terms to match
+    if (searchPatterns.length === 1) {
+      filter.$or = searchPatterns[0].$or;
+    } else {
+      filter.$and = searchPatterns.map((pattern) => ({ $or: pattern.$or }));
+    }
   }
 
   const ingredients = await Ingredient.find(filter);
+
+  // Get user's custom ingredients
+  const userCustomIngredients = user.customIngredients || [];
 
   // Dynamically group ingredients by their macroType
   const groups = ingredients.reduce(
@@ -144,8 +207,13 @@ const getIngredientsForUser = async (filters) => {
       acc[macroType].push(ingredient);
       return acc;
     },
-    { carb: [], pro: [], fat: [], free: [] },
+    { carb: [], pro: [], fat: [], free: [], custom: [] },
   );
+
+  // Add user's custom ingredients to the custom group
+  if (userCustomIngredients.length > 0) {
+    groups.custom = [...groups.custom, ...userCustomIngredients];
+  }
 
   // Get the user meal preferences
   const { mealPreferences } = user;
@@ -167,6 +235,7 @@ const getIngredientsForUser = async (filters) => {
   groups.pro = sortByPreferences(groups.pro, 'pro');
   groups.fat = sortByPreferences(groups.fat, 'fat');
   groups.free = sortByPreferences(groups.free, 'free');
+  groups.custom = sortByPreferences(groups.custom, 'custom');
 
   // Return the result array in the desired order: carb, pro, fat
   const result = [
@@ -174,10 +243,20 @@ const getIngredientsForUser = async (filters) => {
     { title: 'pro', ingredients: groups.pro },
     { title: 'fat', ingredients: groups.fat },
     { title: 'allowed', ingredients: groups.free },
+    { title: 'custom', ingredients: groups.custom },
   ];
 
   if (query) {
-    return { result: ingredients, resultType: 'query' };
+    // For search queries, also include custom ingredients that match the query
+    const matchingCustomIngredients = userCustomIngredients.filter(
+      (ingredient) =>
+        ingredient.name.en.toLowerCase().includes(query.toLowerCase()) ||
+        ingredient.name.ar.includes(query) ||
+        ingredient.name.fa.includes(query),
+    );
+
+    const allMatchingIngredients = [...ingredients, ...matchingCustomIngredients];
+    return { result: allMatchingIngredients, resultType: 'query' };
   }
   return { result, resultType: 'group' };
 };

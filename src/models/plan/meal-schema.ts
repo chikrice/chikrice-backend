@@ -44,6 +44,10 @@ const MealSchema = new mongoose.Schema({
       type: [mealIngredientSchema],
       default: [],
     },
+    custom: {
+      type: [mealIngredientSchema],
+      default: [],
+    },
     free: {
       type: [mealIngredientSchema],
       default: [],
