@@ -39,7 +39,7 @@ export const createMeal = async (planId: string): Promise<void> => {
   const newMeal = {
     number,
     recommendedMacros,
-    ingredients: { carb: [], pro: [], fat: [], free: [] },
+    ingredients: { carb: [], pro: [], fat: [], free: [], custom: [] },
   };
 
   plan.meals.push(newMeal);

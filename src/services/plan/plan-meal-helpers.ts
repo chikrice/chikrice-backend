@@ -54,7 +54,7 @@ export const getMilestonePlansForSuggestions = async (roadmapId: string): Promis
 // ============================================
 type MacroKey = keyof MealIngredients;
 
-const MACRO_KEYS: MacroKey[] = ['carb', 'pro', 'fat', 'free'];
+const MACRO_KEYS: MacroKey[] = ['carb', 'pro', 'fat', 'free', 'custom'];
 
 // ============================================
 // GET MEAL BY ID FROM MEALS ARRAY

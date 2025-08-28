@@ -178,7 +178,7 @@ export const updateUserPreferences = async (userId: Types.ObjectId, data: update
   }
 
   if (!user.mealPreferences[timeSlot]) {
-    user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {} };
+    user.mealPreferences[timeSlot] = { carb: {}, pro: {}, fat: {}, free: {}, custom: {} };
   }
 
   if (!meal.ingredients) return;
@@ -269,11 +269,11 @@ export const addUserCustomIngredient = async (
   user.customIngredients.push(ingredient);
   await user.save();
 
-  return ingredient;
+  return user.customIngredients[user.customIngredients.length - 1];
 };
 
 export const updateUserCustomIngredient = async (userId: Types.ObjectId, updateData: UpdateUserCustomIngredientDTO) => {
-  const { ingredientId, ...updateFields } = updateData;
+  const { id: ingredientId, name, serving } = updateData;
 
   const user = await User.findById(userId);
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
@@ -286,8 +286,18 @@ export const updateUserCustomIngredient = async (userId: Types.ObjectId, updateD
     throw new ApiError(httpStatus.NOT_FOUND, 'Custom ingredient not found');
   }
 
-  // Update the ingredient with new data
-  Object.assign(user.customIngredients[ingredientIndex], updateFields);
+  if (name) {
+    user.customIngredients[ingredientIndex].name = name;
+  }
+
+  if (serving) {
+    if (serving.weightInGrams !== undefined) {
+      user.customIngredients[ingredientIndex].serving.weightInGrams = serving.weightInGrams;
+    }
+    if (serving.nutrientFacts) {
+      user.customIngredients[ingredientIndex].serving.nutrientFacts = serving.nutrientFacts;
+    }
+  }
 
   await user.save();
   return user.customIngredients[ingredientIndex];

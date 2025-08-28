@@ -201,6 +201,7 @@ export const addSuggestedMealToPlanMeals = {
           pro: z.array(z.any()),
           fat: z.array(z.any()),
           free: z.array(z.any()),
+          custom: z.array(z.any()),
         }),
       })
       .passthrough(),

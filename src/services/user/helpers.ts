@@ -35,24 +35,29 @@ const aiResponseFormat = z.object({
 const openai = new OpenAI({ apiKey: config.openai });
 
 const generateAIIngredientData = async (
-  name: string,
+  name: { en?: string; ar?: string; fa?: string },
   weightInGrams: number,
   calories: number,
   existingNutrients: { pro?: number; carb?: number; fat?: number },
 ): Promise<z.infer<typeof aiResponseFormat>> => {
-  const prompt = `Generate food ingredient data for: "${name}" (${weightInGrams}g, ${calories} cal).
+  const providedLanguages = Object.entries(name)
+    .filter(([, value]) => value && value.trim() !== '')
+    .map(([lang, value]) => `${lang}: "${value}"`)
+    .join(', ');
+
+  const prompt = `Generate food ingredient data for a food item with the following name: ${providedLanguages} (${weightInGrams}g, ${calories} cal).
 
 EXISTING NUTRIENTS: ${JSON.stringify(existingNutrients)}
 
 Provide the following:
-1. Name translations in English, Arabic, and Farsi
+1. Complete name translations in English, Arabic, and Farsi (translate from the provided language to fill missing ones)
 2. A relevant food emoji icon
 3. Single serving label (e.g., "piece", "slice", "cup") in all three languages
 4. Multiple serving label (e.g., "pieces", "slices", "cups") in all three languages
 5. Missing nutrient values (pro, carb, fat) if not provided, estimated based on the food type and calories
 
 RULES:
-- Provide accurate translations for the food name
+- Translate the food name accurately from the provided language to the missing languages
 - Choose appropriate serving labels (piece, slice, cup, gram, etc.)
 - Estimate missing nutrients based on food type and calories
 - Use relevant food emoji for icon
@@ -82,8 +87,7 @@ RULES:
     }
     return parsed;
   } catch (error) {
-    console.error('OpenAI API call failed:', error);
-    throw new Error('Failed to generate ingredient data with AI');
+    throw new Error(`Failed to generate ingredient data with AI: ${error}`);
   }
 };
 

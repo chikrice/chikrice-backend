@@ -131,6 +131,7 @@ export const updateUserPreferences = {
             pro: z.array(z.any()),
             fat: z.array(z.any()),
             free: z.array(z.any()),
+            custom: z.array(z.any()),
           })
           .optional(),
       })
@@ -174,7 +175,15 @@ export const addUserCustomIngredient = {
     userId: zObjectId,
   }),
   body: z.object({
-    name: z.string(),
+    name: z
+      .object({
+        en: z.string().optional(),
+        ar: z.string().optional(),
+        fa: z.string().optional(),
+      })
+      .refine((name) => name.en || name.ar || name.fa, {
+        message: 'At least one language name is required',
+      }),
     serving: z.object({
       weightInGrams: z.number().positive(),
       nutrientFacts: z.object({
@@ -193,44 +202,23 @@ export const updateUserCustomIngredient = {
   params: z.object({
     userId: zObjectId,
   }),
-  body: z
-    .object({
-      ingredientId: zObjectId,
-      name: z
-        .object({
-          en: z.string().trim().min(1),
-          ar: z.string().trim().min(1),
-          fa: z.string().trim().min(1),
-        })
-        .optional(),
-      icon: z.string().optional(),
-      macroType: z.enum(['carb', 'fat', 'pro', 'free']).optional(),
-      serving: z
-        .object({
-          weightInGrams: z.number().positive(),
-          breakpoint: z.number().positive(),
-          singleLabel: z.object({
-            en: z.string().trim(),
-            ar: z.string().trim(),
-            fa: z.string().trim(),
-          }),
-          multipleLabel: z.object({
-            en: z.string().trim(),
-            ar: z.string().trim(),
-            fa: z.string().trim(),
-          }),
-          nutrientFacts: z.object({
-            cal: z.number().nonnegative(),
-            pro: z.number().nonnegative(),
-            carb: z.number().nonnegative(),
-            fat: z.number().nonnegative(),
-          }),
-        })
-        .optional(),
-    })
-    .refine((data) => Object.keys(data).length > 1, {
-      message: 'At least one field to update must be provided (besides ingredientId)',
+  body: z.object({
+    id: zObjectId,
+    name: z.object({
+      en: z.string(),
+      ar: z.string(),
+      fa: z.string(),
     }),
+    serving: z.object({
+      weightInGrams: z.number().positive(),
+      nutrientFacts: z.object({
+        cal: z.number().nonnegative(),
+        pro: z.number().nonnegative(),
+        carb: z.number().nonnegative(),
+        fat: z.number().nonnegative(),
+      }),
+    }),
+  }),
 };
 
 export type UpdateUserCustomIngredientDTO = z.infer<typeof updateUserCustomIngredient.body>;

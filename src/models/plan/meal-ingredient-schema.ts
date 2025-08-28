@@ -82,7 +82,7 @@ const mealIngredientSchema = new mongoose.Schema({
   },
   macroType: {
     type: String,
-    enum: ['carb', 'pro', 'fat', 'free'],
+    enum: ['carb', 'pro', 'fat', 'free', 'custom'],
     required: true,
   },
   serving: {

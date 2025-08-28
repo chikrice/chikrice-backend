@@ -125,11 +125,71 @@ const getIngredientsForUser = async (filters) => {
   const filter = {};
 
   if (query) {
-    filter.$or = [
-      { 'name.en': { $regex: query, $options: 'i' } },
-      { 'name.ar': { $regex: query, $options: 'i' } },
-      { 'name.fa': { $regex: query, $options: 'i' } },
-    ];
+    // Create a more flexible search pattern
+    const searchTerms = query.trim().toLowerCase().split(/\s+/);
+
+    // Build regex patterns for each search term
+    const searchPatterns = searchTerms.map((term) => {
+      // Handle common plural forms and variations
+      const singularTerm = term.replace(/s$/, ''); // Remove trailing 's'
+      const pluralTerm = term.endsWith('s') ? term : `${term}s`;
+
+      // Create a pattern that matches the term as a whole word or part of a word
+      return {
+        $or: [
+          // Exact match (case insensitive)
+          { 'name.en': { $regex: `^${term}$`, $options: 'i' } },
+          { 'name.ar': { $regex: `^${term}$`, $options: 'i' } },
+          { 'name.fa': { $regex: `^${term}$`, $options: 'i' } },
+
+          // Word boundary match (case insensitive)
+          { 'name.en': { $regex: `\\b${term}\\b`, $options: 'i' } },
+          { 'name.ar': { $regex: `\\b${term}\\b`, $options: 'i' } },
+          { 'name.fa': { $regex: `\\b${term}\\b`, $options: 'i' } },
+
+          // Contains match (case insensitive)
+          { 'name.en': { $regex: term, $options: 'i' } },
+          { 'name.ar': { $regex: term, $options: 'i' } },
+          { 'name.fa': { $regex: term, $options: 'i' } },
+
+          // Handle singular/plural variations
+          ...(term !== singularTerm
+            ? [
+                { 'name.en': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.ar': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.fa': { $regex: `^${singularTerm}$`, $options: 'i' } },
+                { 'name.en': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.ar': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.fa': { $regex: `\\b${singularTerm}\\b`, $options: 'i' } },
+                { 'name.en': { $regex: singularTerm, $options: 'i' } },
+                { 'name.ar': { $regex: singularTerm, $options: 'i' } },
+                { 'name.fa': { $regex: singularTerm, $options: 'i' } },
+              ]
+            : []),
+
+          ...(term !== pluralTerm
+            ? [
+                { 'name.en': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.ar': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.fa': { $regex: `^${pluralTerm}$`, $options: 'i' } },
+                { 'name.en': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.ar': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.fa': { $regex: `\\b${pluralTerm}\\b`, $options: 'i' } },
+                { 'name.en': { $regex: pluralTerm, $options: 'i' } },
+                { 'name.ar': { $regex: pluralTerm, $options: 'i' } },
+                { 'name.fa': { $regex: pluralTerm, $options: 'i' } },
+              ]
+            : []),
+        ],
+      };
+    });
+
+    // If multiple search terms, use $and to require all terms to match
+    if (searchPatterns.length === 1) {
+      filter.$or = searchPatterns[0].$or;
+    } else {
+      filter.$and = searchPatterns.map((pattern) => ({ $or: pattern.$or }));
+    }
   }
 
   const ingredients = await Ingredient.find(filter);
