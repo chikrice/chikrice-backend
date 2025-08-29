@@ -30,6 +30,9 @@ const envVarsSchema = Joi.object()
     GOOGLE_CLIENT_ID: Joi.string().required().description('Google OAuth client ID'),
     GOOGLE_CLIENT_SECRET: Joi.string().required().description('Google OAuth client secret'),
     GOOGLE_USERINFO_URL: Joi.string().required().description('Google User info url required'),
+    GOOGLE_REDIRECT_URL_DEV: Joi.string().required().description('Google User info url required'),
+    GOOGLE_REDIRECT_URL_STAGING: Joi.string().required().description('Google User info url required'),
+    GOOGLE_REDIRECT_URL_PRODUCTION: Joi.string().required().description('Google User info url required'),
     OPENAI_API_KEY: Joi.string().required().description('Open ai secret key'),
   })
   .unknown();
@@ -78,6 +81,11 @@ module.exports = {
     clientId: envVars.GOOGLE_CLIENT_ID,
     clientSecret: envVars.GOOGLE_CLIENT_SECRET,
     userInfoUrl: envVars.GOOGLE_USERINFO_URL,
+    redirectUri: (() => {
+      if (envVars.NODE_ENV === 'production') return envVars.GOOGLE_REDIRECT_URL_PRODUCTION;
+      if (envVars.NODE_ENV === 'staging') return envVars.GOOGLE_REDIRECT_URL_STAGING;
+      return envVars.GOOGLE_REDIRECT_URL_DEV;
+    })(),
+    openai: envVars.OPENAI_API_KEY,
   },
-  openai: envVars.OPENAI_API_KEY,
 };
