@@ -2,8 +2,9 @@
   "apps": [
     {
       "name": "app",
-      "script": "src/index.js",
-      "instances": 1,
+      "script": "dist/index.js",
+      "instances": "max",
+      "exec_mode": "cluster",
       "autorestart": true,
       "watch": false,
       "time": true,
