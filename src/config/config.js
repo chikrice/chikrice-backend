@@ -86,6 +86,6 @@ module.exports = {
       if (envVars.NODE_ENV === 'staging') return envVars.GOOGLE_REDIRECT_URL_STAGING;
       return envVars.GOOGLE_REDIRECT_URL_DEV;
     })(),
-    openai: envVars.OPENAI_API_KEY,
   },
+  openai: envVars.OPENAI_API_KEY,
 };
