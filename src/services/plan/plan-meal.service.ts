@@ -3,8 +3,6 @@ import httpStatus from 'http-status';
 import ApiError from '@/utils/ApiError';
 import { Plan, Ingredient } from '@/models';
 
-import { updateUserPreferences } from '../user/user.service';
-
 import { recalcPlanConsumedMacros } from './plan-helpers';
 import {
   getMealById,
@@ -88,7 +86,7 @@ export const updatePlanMeal = async (planId: string): Promise<void> => {
 // TOGGLE MEAL MODE
 // ============================================
 export const toggleMealMode = async (planId: string, data: ToggleMealModeDTO): Promise<void> => {
-  const { mealId, userId, mode } = data;
+  const { mealId, mode } = data;
 
   const plan = await Plan.findById(planId);
   if (!plan) throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
@@ -99,7 +97,7 @@ export const toggleMealMode = async (planId: string, data: ToggleMealModeDTO): P
   meal.mode = mode;
 
   if (mode === 'view') {
-    await updateUserPreferences(userId, meal);
+    // await updateUserPreferences(userId, { meal });
   }
 
   plan.markModified('meals');
