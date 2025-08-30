@@ -30,9 +30,9 @@ const envVarsSchema = Joi.object()
     GOOGLE_CLIENT_ID: Joi.string().required().description('Google OAuth client ID'),
     GOOGLE_CLIENT_SECRET: Joi.string().required().description('Google OAuth client secret'),
     GOOGLE_USERINFO_URL: Joi.string().required().description('Google User info url required'),
-    GOOGLE_REDIRECT_URL_DEV: Joi.string().required().description('Google User info url required'),
-    GOOGLE_REDIRECT_URL_STAGING: Joi.string().required().description('Google User info url required'),
-    GOOGLE_REDIRECT_URL_PRODUCTION: Joi.string().required().description('Google User info url required'),
+    GOOGLE_REDIRECT_URL_DEV: Joi.string().required().description('Google Staging Dev uri required'),
+    GOOGLE_REDIRECT_URL_STAGING: Joi.string().required().description('Google Staging Redirect uri required'),
+    GOOGLE_REDIRECT_URL_PRODUCTION: Joi.string().required().description('Google Production Redirect uri required'),
     OPENAI_API_KEY: Joi.string().required().description('Open ai secret key'),
   })
   .unknown();
