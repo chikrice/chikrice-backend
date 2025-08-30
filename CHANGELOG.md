@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.1](https://github.com/chikrice/chikrice-backend/compare/v1.3.0...v1.3.1) (2025-08-30)
+
+
+### Bug Fixes
+
+* add staging env google redirect uri ([e177120](https://github.com/chikrice/chikrice-backend/commit/e177120501531d6cbddc43fa02dbe10bd4c186bd))
+* optimize dockerfile for production with multi-stage build ([d8c5871](https://github.com/chikrice/chikrice-backend/commit/d8c58712e68e52368f021cdcca39857d702a25a1))
+* optimize dockerfile for production with multi-stage build ([65c0126](https://github.com/chikrice/chikrice-backend/commit/65c01265d93a1fb1c723c2621538061e35b63642))
+* resolved package.json syntax error ([e6b4ff4](https://github.com/chikrice/chikrice-backend/commit/e6b4ff41c18e38e8a226fe05cd5e466fc70b6ec4))
+* resolved typescript build errors ([b7055bb](https://github.com/chikrice/chikrice-backend/commit/b7055bb47f1f3c91ea3bbbb27af64d349c7d95f4))
+* resolved typescript build errors ([8e6cb33](https://github.com/chikrice/chikrice-backend/commit/8e6cb33f6713d9ea0b3b040c64792363fe41c3d2))
+
 ## [1.3.0](https://github.com/chikrice/chikrice-backend/compare/v1.2.0...v1.3.0) (2025-08-28)
 
 
