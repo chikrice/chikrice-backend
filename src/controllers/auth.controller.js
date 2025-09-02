@@ -1,7 +1,8 @@
 const httpStatus = require('http-status');
 
+const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService } = require('../services');
+const { authService, userService, tokenService, emailService, verificationCodeService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -42,7 +43,7 @@ const refreshTokens = catchAsync(async (req, res) => {
 const forgotPassword = catchAsync(async (req, res) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
   await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.status(httpStatus.NO_CONTENT).send({ success: true });
 });
 
 const resetPassword = catchAsync(async (req, res) => {
@@ -61,6 +62,57 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const sendVerificationEmailCode = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const code = await verificationCodeService.generateAndStoreVerificationCode(email);
+  await emailService.sendVerificationEmailCode(email, code);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
+const verifyEmailCode = catchAsync(async (req, res) => {
+  const { email, code, isResetPassword } = req.body;
+  const result = await verificationCodeService.verifyEmailCode({ email, code, isResetPassword });
+
+  if (isResetPassword && result.resetPasswordToken) {
+    // Return the reset password token for password reset flow
+    res.send({
+      success: true,
+      message: result.message,
+      resetPasswordToken: result.resetPasswordToken,
+      user: result.user,
+    });
+  } else {
+    // Regular email verification - return success
+    res.send({
+      success: true,
+      message: result.message,
+      user: result.user,
+    });
+  }
+});
+
+const resendVerificationCode = catchAsync(async (req, res) => {
+  const { email, isResetPassword = false } = req.body;
+  const user = await userService.getUserByEmail(email);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (!isResetPassword && user.isEmailVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email is already verified');
+  }
+
+  const code = await verificationCodeService.generateAndStoreVerificationCode(email);
+  await emailService.sendVerificationEmailCode(email, code);
+
+  res.send({
+    success: true,
+    message: 'Verification code sent successfully',
+    isResetPassword,
+  });
+});
+
 module.exports = {
   login,
   logout,
@@ -72,4 +124,7 @@ module.exports = {
   resetPassword,
   forgotPassword,
   sendVerificationEmail,
+  sendVerificationEmailCode,
+  verifyEmailCode,
+  resendVerificationCode,
 };

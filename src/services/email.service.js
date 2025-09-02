@@ -35,7 +35,7 @@ const sendEmail = async (to, subject, text) => {
 const sendResetPasswordEmail = async (to, token) => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `http://chikrice.khaled-javdan.com/reset-password?token=${token}`;
+  const resetPasswordUrl = `${config.email.domain}/auth/reset-password?token=${token}`;
   const text = `Dear user,
 To reset your password, click on this link: ${resetPasswordUrl}
 If you did not request any password resets, then ignore this email.`;
@@ -43,7 +43,7 @@ If you did not request any password resets, then ignore this email.`;
 };
 
 /**
- * Send verification email
+ * Send verification email (token-based) - Legacy
  * @param {string} to
  * @param {string} token
  * @returns {Promise}
@@ -51,10 +51,33 @@ If you did not request any password resets, then ignore this email.`;
 const sendVerificationEmail = async (to, token) => {
   const subject = 'Email Verification';
   // replace this url with the link to the email verification page of your front-end app
-  const verificationEmailUrl = `http://chikrice.khaled-javdan.com/verify-email?token=${token}`;
+  const verificationEmailUrl = `${config.email.domain}/auth/verify-email?token=${token}`;
   const text = `Dear user,
 To verify your email, click on this link: ${verificationEmailUrl}
 If you did not create an account, then ignore this email.`;
+  await sendEmail(to, subject, text);
+};
+
+/**
+ * Send verification email with code
+ * @param {string} to
+ * @param {string} code
+ * @returns {Promise}
+ */
+const sendVerificationEmailCode = async (to, code) => {
+  const subject = 'Email Verification Code';
+  const text = `Dear user,
+
+Your email verification code is: ${code}
+
+Please enter this code on the verification page to complete your registration.
+
+This code will expire in 10 minutes for security reasons.
+
+If you did not create an account, please ignore this email.
+
+Best regards,
+The ChikRice Team`;
   await sendEmail(to, subject, text);
 };
 
@@ -63,4 +86,5 @@ module.exports = {
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
+  sendVerificationEmailCode,
 };

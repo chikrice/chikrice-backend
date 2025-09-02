@@ -8,3 +8,4 @@ module.exports.tokenService = require('./token.service');
 module.exports.authService = require('./auth.service');
 module.exports.coachService = require('./coach.service');
 module.exports.ingredientService = require('./ingredient');
+module.exports.verificationCodeService = require('./verification-code.service');

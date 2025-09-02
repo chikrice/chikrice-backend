@@ -64,6 +64,16 @@ const baseUserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    emailVerificationCode: {
+      type: String,
+      default: null,
+      private: true, // Don't include in JSON responses
+    },
+    emailVerificationCodeExpires: {
+      type: Date,
+      default: null,
+      private: true, // Don't include in JSON responses
+    },
     age: {
       type: Number,
       min: 0,

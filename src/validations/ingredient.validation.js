@@ -1,6 +1,8 @@
 const Joi = require('joi');
-const { objectId } = require('./custom.validation');
+
 const { ingredientCategories } = require('../constants');
+
+const { objectId } = require('./custom.validation');
 
 const macrosSchema = Joi.object().keys({
   carb: Joi.number().min(0).required(),

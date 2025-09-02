@@ -17,7 +17,7 @@ const errorConverter = (err, req, res, next) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, _next) => {
   let { statusCode, message } = err;
   if (config.env === 'production' && !err.isOperational) {
     statusCode = httpStatus.INTERNAL_SERVER_ERROR;
@@ -26,17 +26,27 @@ const errorHandler = (err, req, res) => {
 
   res.locals.errorMessage = err.message;
 
+  // Ensure proper JSON response format
   const response = {
-    code: statusCode,
-    message,
-    ...(config.env === 'development' && { stack: err.stack }),
+    success: false,
+    error: {
+      code: statusCode,
+      message,
+      timestamp: err.timestamp || new Date().toISOString(),
+    },
   };
+
+  // Add stack trace in development mode
+  if (config.env === 'development') {
+    response.error.stack = err.stack;
+  }
 
   if (config.env === 'development') {
     logger.error(err);
   }
 
-  res.status(statusCode).send(response);
+  // Set proper content type and send JSON response
+  res.status(statusCode).json(response);
 };
 
 module.exports = {

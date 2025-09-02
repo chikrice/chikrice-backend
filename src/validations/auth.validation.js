@@ -107,6 +107,30 @@ const verifyEmail = {
   }),
 };
 
+const verifyEmailCode = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    code: Joi.string()
+      .required()
+      .length(6)
+      .pattern(/^[0-9]+$/),
+    isResetPassword: Joi.boolean().required(),
+  }),
+};
+
+const sendVerificationEmailCode = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+  }),
+};
+
+const resendVerificationCode = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    isResetPassword: Joi.boolean().optional().default(false),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -117,4 +141,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  verifyEmailCode,
+  sendVerificationEmailCode,
+  resendVerificationCode,
 };

@@ -27,12 +27,12 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    DOMAIN_DEV: Joi.string().description('dev domain is required'),
+    DOMAIN_STAGING: Joi.string().description('staging domain required'),
+    DOMAIN_PRODUCTION: Joi.string().description('production domain is required'),
     GOOGLE_CLIENT_ID: Joi.string().required().description('Google OAuth client ID'),
     GOOGLE_CLIENT_SECRET: Joi.string().required().description('Google OAuth client secret'),
     GOOGLE_USERINFO_URL: Joi.string().required().description('Google User info url required'),
-    GOOGLE_REDIRECT_URL_DEV: Joi.string().required().description('Google Staging Dev uri required'),
-    GOOGLE_REDIRECT_URL_STAGING: Joi.string().required().description('Google Staging Redirect uri required'),
-    GOOGLE_REDIRECT_URL_PRODUCTION: Joi.string().required().description('Google Production Redirect uri required'),
     OPENAI_API_KEY: Joi.string().required().description('Open ai secret key'),
   })
   .unknown();
@@ -76,15 +76,20 @@ module.exports = {
       },
     },
     from: envVars.EMAIL_FROM,
+    domain: (() => {
+      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PRODUCTION;
+      if (envVars.NODE_ENV === 'staging') return envVars.DOMAIN_STAGING;
+      return envVars.DOMAIN_DEV;
+    })(),
   },
   google: {
     clientId: envVars.GOOGLE_CLIENT_ID,
     clientSecret: envVars.GOOGLE_CLIENT_SECRET,
     userInfoUrl: envVars.GOOGLE_USERINFO_URL,
     redirectUri: (() => {
-      if (envVars.NODE_ENV === 'production') return envVars.GOOGLE_REDIRECT_URL_PRODUCTION;
-      if (envVars.NODE_ENV === 'staging') return envVars.GOOGLE_REDIRECT_URL_STAGING;
-      return envVars.GOOGLE_REDIRECT_URL_DEV;
+      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PRODUCTION;
+      if (envVars.NODE_ENV === 'staging') return envVars.DOMAIN_STAGING;
+      return envVars.DOMAIN_DEV;
     })(),
   },
   openai: envVars.OPENAI_API_KEY,
