@@ -3,8 +3,7 @@
     {
       "name": "app",
       "script": "dist/index.js",
-      "instances": "max",
-      "exec_mode": "cluster",
+      "instances": 1,
       "autorestart": true,
       "watch": false,
       "time": true,
