@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/chikrice/chikrice-backend/compare/v1.4.0...v1.5.0) (2025-09-03)
+
+
+### Features
+
+* migrate from nodemailer to resend for transactional emails ([cae5ac5](https://github.com/chikrice/chikrice-backend/commit/cae5ac5a5e95b288c34a991e2b7fa8125887dbc0))
+
 ## [1.4.0](https://github.com/chikrice/chikrice-backend/compare/v1.3.0...v1.4.0) (2025-09-02)
 
 
