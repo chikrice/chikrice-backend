@@ -11,6 +11,7 @@ const envVarsSchema = Joi.object()
     PORT: Joi.number().default(3000),
     MONGODB_URL_DEV: Joi.string().description('Mongo DB development url'),
     MONGODB_URL_STAGING: Joi.string().description('Mongo DB staging url'),
+    MONGODB_URL_TEST: Joi.string().description('Mongo DB test url'),
     MONGODB_URL_PROD: Joi.string().required().description('Mongo DB production url'),
     JWT_SECRET_DEV: Joi.string().description('JWT secret key for development/staging'),
     JWT_SECRET_PROD: Joi.string().required().description('JWT secret key for production'),
@@ -26,14 +27,14 @@ const envVarsSchema = Joi.object()
     SMTP_HOST_DEV: Joi.string().description('development email server host'),
     SMTP_USERNAME_DEV: Joi.string().description('development email server username'),
     SMTP_PASSWORD_DEV: Joi.string().description('development email server password'),
-    SMTP_PORT_PROD: Joi.number().description('development port to connect to the email server'),
+    SMTP_PORT_PROD: Joi.number().description('production port to connect to the email server'),
     SMTP_HOST_PROD: Joi.string().description('production email server host'),
     SMTP_USERNAME_PROD: Joi.string().description('production email server username'),
     SMTP_PASSWORD_PROD: Joi.string().description('production email server password'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     DOMAIN_DEV: Joi.string().description('dev domain is required'),
     DOMAIN_STAGING: Joi.string().description('staging domain required'),
-    DOMAIN_PRODUCTION: Joi.string().description('production domain is required'),
+    DOMAIN_PROD: Joi.string().description('production domain is required'),
     GOOGLE_CLIENT_ID: Joi.string().required().description('Google OAuth client ID'),
     GOOGLE_CLIENT_SECRET: Joi.string().required().description('Google OAuth client secret'),
     GOOGLE_USERINFO_URL: Joi.string().required().description('Google User info url required'),
@@ -81,7 +82,7 @@ module.exports = {
     },
     from: envVars.EMAIL_FROM,
     domain: (() => {
-      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PRODUCTION;
+      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PROD;
       if (envVars.NODE_ENV === 'staging') return envVars.DOMAIN_STAGING;
       return envVars.DOMAIN_DEV;
     })(),
@@ -91,7 +92,7 @@ module.exports = {
     clientSecret: envVars.GOOGLE_CLIENT_SECRET,
     userInfoUrl: envVars.GOOGLE_USERINFO_URL,
     redirectUri: (() => {
-      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PRODUCTION;
+      if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PROD;
       if (envVars.NODE_ENV === 'staging') return envVars.DOMAIN_STAGING;
       return envVars.DOMAIN_DEV;
     })(),
