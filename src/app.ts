@@ -10,7 +10,6 @@ const mongoSanitize = require('express-mongo-sanitize');
 const routes = require('@/routes/v1');
 const morgan = require('@/config/morgan');
 const config = require('@/config/config');
-const logger = require('@/config/logger');
 const ApiError = require('@/utils/ApiError');
 const { jwtStrategy } = require('@/config/passport');
 const { authLimiter } = require('@/middlewares/rateLimiter');
@@ -18,13 +17,9 @@ const { errorConverter, errorHandler } = require('@/middlewares/error');
 
 import type { Request, Response, NextFunction } from 'express';
 
-// require('@/cron/roadmap-job');
+require('@/cron/roadmap-job');
 
 // -------------------------------------
-
-if (config.env === 'development') {
-  logger.debug(`config: ${JSON.stringify({ env: config.env, port: config.port }, null, 2)}`);
-}
 
 const app = express();
 if (config.env !== 'test') {
@@ -63,19 +58,6 @@ if (config.env === 'production') {
 
 // v1 api routes
 app.use('/v1', routes);
-
-// lightweight per-request memory logging (only in production)
-if (config.env === 'production') {
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    const m = process.memoryUsage();
-    logger.info(
-      `mem route=${req.method} ${req.originalUrl} rss=${Math.round(m.rss / 1024 / 1024)}MB heapUsed=${Math.round(
-        m.heapUsed / 1024 / 1024,
-      )}MB heapTotal=${Math.round(m.heapTotal / 1024 / 1024)}MB`,
-    );
-    next();
-  });
-}
 
 // send back a 404 error for any unknown api request
 app.use((_req: Request, _res: Response, next: NextFunction) => {

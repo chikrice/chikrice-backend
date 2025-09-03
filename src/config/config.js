@@ -15,22 +15,11 @@ const envVarsSchema = Joi.object()
     MONGODB_URL_PROD: Joi.string().required().description('Mongo DB production url'),
     JWT_SECRET_DEV: Joi.string().description('JWT secret key for development/staging'),
     JWT_SECRET_PROD: Joi.string().required().description('JWT secret key for production'),
-    JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
-    JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
-    JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number()
-      .default(10)
-      .description('minutes after which reset password token expires'),
-    JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
-      .default(10)
-      .description('minutes after which verify email token expires'),
-    SMTP_PORT_DEV: Joi.number().description('development port to connect to the email server'),
-    SMTP_HOST_DEV: Joi.string().description('development email server host'),
-    SMTP_USERNAME_DEV: Joi.string().description('development email server username'),
-    SMTP_PASSWORD_DEV: Joi.string().description('development email server password'),
-    SMTP_PORT_PROD: Joi.number().description('production port to connect to the email server'),
-    SMTP_HOST_PROD: Joi.string().description('production email server host'),
-    SMTP_USERNAME_PROD: Joi.string().description('production email server username'),
-    SMTP_PASSWORD_PROD: Joi.string().description('production email server password'),
+    JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30),
+    JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30),
+    JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number().default(10),
+    JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number().default(10),
+    RESEND_API_KEY: Joi.string().description('Resend API key'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     DOMAIN_DEV: Joi.string().description('dev domain is required'),
     DOMAIN_STAGING: Joi.string().description('staging domain required'),
@@ -72,14 +61,7 @@ module.exports = {
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
   },
   email: {
-    smtp: {
-      host: envVars.NODE_ENV === 'production' ? envVars.SMTP_HOST_PROD : envVars.SMTP_HOST_DEV,
-      port: envVars.NODE_ENV === 'production' ? envVars.SMTP_PORT_PROD : envVars.SMTP_PORT_DEV,
-      auth: {
-        user: envVars.NODE_ENV === 'production' ? envVars.SMTP_USERNAME_PROD : envVars.SMTP_USERNAME_DEV,
-        pass: envVars.NODE_ENV === 'production' ? envVars.SMTP_PASSWORD_PROD : envVars.SMTP_PASSWORD_DEV,
-      },
-    },
+    resendApiKey: envVars.RESEND_API_KEY,
     from: envVars.EMAIL_FROM,
     domain: (() => {
       if (envVars.NODE_ENV === 'production') return envVars.DOMAIN_PROD;
