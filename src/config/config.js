@@ -26,7 +26,7 @@ const envVarsSchema = Joi.object()
     SMTP_HOST_DEV: Joi.string().description('development email server host'),
     SMTP_USERNAME_DEV: Joi.string().description('development email server username'),
     SMTP_PASSWORD_DEV: Joi.string().description('development email server password'),
-    SMTP_PORT_PRODUCTION: Joi.number().description('development port to connect to the email server'),
+    SMTP_PORT_PROD: Joi.number().description('development port to connect to the email server'),
     SMTP_HOST_PROD: Joi.string().description('production email server host'),
     SMTP_USERNAME_PROD: Joi.string().description('production email server username'),
     SMTP_PASSWORD_PROD: Joi.string().description('production email server password'),
