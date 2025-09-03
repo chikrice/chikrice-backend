@@ -43,8 +43,6 @@ app.use(mongoSanitize());
 // gzip compression
 app.use(compression());
 
-// const origin = ['http://localhost:3030', 'https://chikrice.com', 'https://www.chikrice.com'];
-
 // enable cors
 app.use(cors({ origin: '*', credentials: true }));
 app.options('*', cors());

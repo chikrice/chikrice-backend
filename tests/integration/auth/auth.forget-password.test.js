@@ -1,10 +1,11 @@
 const request = require('supertest');
 const httpStatus = require('http-status');
-const { insertUsers, userOne } = require('../../fixtures/user.fixture');
-const setupTestDB = require('../../utils/setupTestDB');
+
 const app = require('../../../src/app');
 const { Token } = require('../../../src/models');
+const setupTestDB = require('../../utils/setupTestDB');
 const { emailService } = require('../../../src/services');
+const { insertUsers, userOne } = require('../../fixtures/user.fixture');
 
 setupTestDB();
 

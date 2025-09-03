@@ -22,10 +22,14 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
-    SMTP_HOST: Joi.string().description('server that will send the emails'),
-    SMTP_PORT: Joi.number().description('port to connect to the email server'),
-    SMTP_USERNAME: Joi.string().description('username for email server'),
-    SMTP_PASSWORD: Joi.string().description('password for email server'),
+    SMTP_PORT_DEV: Joi.number().description('development port to connect to the email server'),
+    SMTP_HOST_DEV: Joi.string().description('development email server host'),
+    SMTP_USERNAME_DEV: Joi.string().description('development email server username'),
+    SMTP_PASSWORD_DEV: Joi.string().description('development email server password'),
+    SMTP_PORT_PRODUCTION: Joi.number().description('development port to connect to the email server'),
+    SMTP_HOST_PROD: Joi.string().description('production email server host'),
+    SMTP_USERNAME_PROD: Joi.string().description('production email server username'),
+    SMTP_PASSWORD_PROD: Joi.string().description('production email server password'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     DOMAIN_DEV: Joi.string().description('dev domain is required'),
     DOMAIN_STAGING: Joi.string().description('staging domain required'),
@@ -68,11 +72,11 @@ module.exports = {
   },
   email: {
     smtp: {
-      host: envVars.SMTP_HOST,
-      port: envVars.SMTP_PORT,
+      host: envVars.NODE_ENV === 'production' ? envVars.SMTP_HOST_PROD : envVars.SMTP_HOST_DEV,
+      port: envVars.NODE_ENV === 'production' ? envVars.SMTP_PORT_PROD : envVars.SMTP_PORT_DEV,
       auth: {
-        user: envVars.SMTP_USERNAME,
-        pass: envVars.SMTP_PASSWORD,
+        user: envVars.NODE_ENV === 'production' ? envVars.SMTP_USERNAME_PROD : envVars.SMTP_USERNAME_DEV,
+        pass: envVars.NODE_ENV === 'production' ? envVars.SMTP_PASSWORD_PROD : envVars.SMTP_PASSWORD_DEV,
       },
     },
     from: envVars.EMAIL_FROM,

@@ -1,1 +1,0 @@
-This archive folder is intended to store legacy features and code that are no longer actively used in the main project. These files are kept here in case they are needed for reference or re-integration in the future.

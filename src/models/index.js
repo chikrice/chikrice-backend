@@ -16,7 +16,4 @@ module.exports = {
   Faq: require('./faq'),
   // eslint-disable-next-line global-require
   Token: require('./token'),
-  // eslint-disable-next-line global-require
-  PlanDay: require('./plan-day'),
-  // eslint-disable-next-line global-require
 };

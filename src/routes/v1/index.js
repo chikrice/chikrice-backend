@@ -10,7 +10,6 @@ const planRoute = require('./plan.route');
 const coachRoute = require('./coach.route');
 const healthRoute = require('./health.route');
 const roadmapRoute = require('./roadmap.route');
-const planDayRoute = require('./plan-day.route');
 const ingredientRoute = require('./ingredient.route');
 
 const router = express.Router();
@@ -35,10 +34,6 @@ const defaultRoutes = [
   {
     path: '/roadmaps',
     route: roadmapRoute,
-  },
-  {
-    path: '/plans-day',
-    route: planDayRoute,
   },
   {
     path: '/plans',

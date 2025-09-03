@@ -2,7 +2,6 @@ module.exports.userService = require('./user');
 module.exports.planService = require('./plan');
 module.exports.roadmapService = require('./roadmap');
 module.exports.faqService = require('./faq.service');
-module.exports.planDayService = require('./plan-day');
 module.exports.emailService = require('./email.service');
 module.exports.tokenService = require('./token.service');
 module.exports.authService = require('./auth.service');
