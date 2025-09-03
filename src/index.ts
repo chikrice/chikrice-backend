@@ -14,6 +14,19 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   server = app.listen(config.port, () => {
     logger.info(`Listening to port ${config.port}`);
   });
+
+  // Periodic memory usage logging (disabled in test)
+  if (config.env !== 'test') {
+    const formatMem = (bytes: number) => `${Math.round(bytes / 1024 / 1024)}MB`;
+    setInterval(() => {
+      const m = process.memoryUsage();
+      logger.info(
+        `mem rss=${formatMem(m.rss)} heapUsed=${formatMem(m.heapUsed)} heapTotal=${formatMem(
+          m.heapTotal,
+        )} ext=${formatMem(m.external)}`,
+      );
+    }, 30000).unref();
+  }
 });
 
 const exitHandler = () => {
