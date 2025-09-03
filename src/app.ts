@@ -18,7 +18,7 @@ const { errorConverter, errorHandler } = require('@/middlewares/error');
 
 import type { Request, Response, NextFunction } from 'express';
 
-require('@/cron/roadmap-job');
+// require('@/cron/roadmap-job');
 
 // -------------------------------------
 
